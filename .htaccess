@@ -1,0 +1,36 @@
+# Jalankan lewat Apache (XAMPP): http://localhost/tour-travel/
+# Semua request diteruskan ke public/ sehingga app/, vendor/, writable/, .env tidak terbuka.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Authorization header tetap diteruskan
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Blokir akses langsung ke folder dan file internal
+    RewriteRule ^(app|vendor|writable|tests|database|build|builds|\.kiro|\.git)(/|$) - [F,L,NC]
+    RewriteRule ^(\.env|env|composer\.(json|lock)|spark|phpunit\.xml\.dist|preload\.php|README\.md|LICENSE)$ - [F,L,NC]
+
+    # Teruskan sisanya ke public/ (aturan public/.htaccess lalu menangani index.php)
+    RewriteRule ^$ public/ [L]
+    RewriteRule ^(?!public/)(.*)$ public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>
+
+# Batas upload. Aplikasi sendiri membatasi gambar maks 5 MB (ImageUploadHandler);
+# nilai PHP harus di atasnya supaya pesan error aplikasi yang tampil, bukan file dibuang diam-diam.
+<IfModule mod_php.c>
+    php_value upload_max_filesize 8M
+    php_value post_max_size 16M
+    php_value max_file_uploads 20
+</IfModule>
+<IfModule mod_php8.c>
+    php_value upload_max_filesize 8M
+    php_value post_max_size 16M
+    php_value max_file_uploads 20
+</IfModule>

@@ -1,0 +1,79 @@
+/*
+ * tokens.css - design tokens + font lokal (tanpa CDN).
+ * Dimuat sebelum landing.css dan admin.css.
+ * Catatan: --lp-lime dan --ad-green hanya untuk latar/elemen non-teks.
+ */
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("../vendor/fonts/plus-jakarta-sans/PlusJakartaSans-latin-wght.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Figtree";
+  src: url("../vendor/fonts/figtree/Figtree-latin-wght.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Netral */
+  --c-ink: #2d2d30;
+  --c-text: #1f2430;
+  --c-muted: #5b6472;
+  --c-surface: #ffffff;
+  --c-surface-2: #f6f7f9;
+  --c-border: #e4e7ec;
+
+  /* Landing */
+  --lp-sky-top: #dbe9fb;
+  --lp-lime: #e6f542;
+  --lp-lime-ink: #2d2d30;
+  --lp-link: #1f5fd0;
+  /* Hijau aksen untuk tombol WhatsApp: putih di atasnya ~6.6:1 (>= 4.5:1); hover ~9:1 */
+  --accent: #0a6b35;
+  --accent-hover: #085528;
+  /* Scrim untuk teks di atas gambar (rgba, bukan warna teks) */
+  --scrim: rgba(45, 45, 48, .78);
+  --scrim-soft: rgba(45, 45, 48, .55);
+
+  /* Admin */
+  --ad-primary: #1f5fd0;
+  --ad-primary-soft: #e8f0fd;
+  --ad-backdrop: #1f5fd0;
+  --ad-green: #2e9e6b;
+  --ad-green-text: #1f7a52;
+  --ad-danger: #b00020;
+
+  /* Fokus */
+  --focus-ring: #1f5fd0;
+  --focus-ring-on-dark: #e6f542;
+
+  /* Radius */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* Bayangan */
+  --sh-sm: 0 1px 2px rgba(16, 24, 40, .06);
+  --sh-md: 0 8px 24px rgba(16, 24, 40, .08);
+  --sh-lg: 0 24px 60px rgba(16, 24, 40, .14);
+
+  /* Tipografi */
+  --font-landing: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-admin: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fs-display: clamp(2.1rem, 6vw, 4rem);
+  --fs-h2: clamp(1.6rem, 3.5vw, 2.5rem);
+  --fs-stat: clamp(2.5rem, 7vw, 4.5rem);
+  --fs-body: 1rem;
+  --fs-small: .875rem;
+
+  /* Spasi bagian */
+  --space-section: clamp(3rem, 8vw, 6rem);
+}
