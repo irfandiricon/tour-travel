@@ -102,7 +102,7 @@ final class DashboardViewTest extends CIUnitTestCase
         // 8 visitor/booking cards + 4 content cards
         $this->assertSame(8, substr_count($html, 'fs-3 fw-semibold'));
         $this->assertSame(4, substr_count($html, 'badge text-bg-success'));
-        foreach (['Total visitors', 'Unique today', 'Unique last 7 days', 'Unique last 30 days', 'Page views', 'Booking clicks'] as $label) {
+        foreach (['Daily visitors (all time)', 'Visitors today', 'Daily visitors (last 7 days)', 'Daily visitors (last 30 days)', 'Page views', 'Booking clicks'] as $label) {
             $this->assertStringContainsString($label, $html);
         }
         foreach (['chart-daily', 'chart-language', 'chart-device'] as $id) {
@@ -135,5 +135,20 @@ final class DashboardViewTest extends CIUnitTestCase
                 }
             }
         }
+    }
+
+    public function testVisitorCardsSayDailyVisitorsAndExplainTheCount(): void
+    {
+        $html = $this->render($this->zeroSummary());
+
+        $this->assertStringContainsString('id="visitor-note"', $html);
+        $this->assertStringContainsString('each visitor is counted once per day', $html);
+        $this->assertStringContainsString('not distinct people', $html);
+        $this->assertDoesNotMatchRegularExpression('/>\s*Unique (today|last 7 days|last 30 days)\s*</', $html, 'old labels are gone');
+        $this->assertStringContainsString('Daily page views and daily visitors for the selected range', $html);
+
+        $js = (string) file_get_contents(FCPATH . 'assets/js/dashboard.js');
+        $this->assertSame(2, substr_count($js, "label: 'Daily visitors',"));
+        $this->assertStringNotContainsString("label: 'Unique visitors'", $js);
     }
 }

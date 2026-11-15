@@ -26,10 +26,12 @@ $waOk      = ! empty($data['whatsapp_configured']);
 $hasData = $int($visitors['page_views'] ?? 0) > 0 || $int($visitors['total'] ?? 0) > 0 || $int($bookings['total'] ?? 0) > 0;
 
 $visitorCards = [
-    ['label' => 'Total visitors',     'value' => $int($visitors['total'] ?? 0),        'icon' => 'bi-people'],
-    ['label' => 'Unique today',       'value' => $int($visitors['unique_today'] ?? 0), 'icon' => 'bi-person-check'],
-    ['label' => 'Unique last 7 days', 'value' => $int($visitors['unique_7d'] ?? 0),    'icon' => 'bi-calendar-week'],
-    ['label' => 'Unique last 30 days', 'value' => $int($visitors['unique_30d'] ?? 0),  'icon' => 'bi-calendar-month'],
+    // A visitor is recognised per day only (the hash rotates daily), so the multi-day cards add up
+    // daily visitors: someone who comes on 3 days counts 3. See the note under the cards.
+    ['label' => 'Daily visitors (all time)',    'value' => $int($visitors['total'] ?? 0),        'icon' => 'bi-people'],
+    ['label' => 'Visitors today',               'value' => $int($visitors['unique_today'] ?? 0), 'icon' => 'bi-person-check'],
+    ['label' => 'Daily visitors (last 7 days)', 'value' => $int($visitors['unique_7d'] ?? 0),    'icon' => 'bi-calendar-week'],
+    ['label' => 'Daily visitors (last 30 days)', 'value' => $int($visitors['unique_30d'] ?? 0),  'icon' => 'bi-calendar-month'],
     ['label' => 'Page views',         'value' => $int($visitors['page_views'] ?? 0),   'icon' => 'bi-eye'],
     ['label' => 'Booking clicks',     'value' => $int($bookings['total'] ?? 0),        'icon' => 'bi-whatsapp'],
     ['label' => 'Booking clicks (7 days)',  'value' => $int($bookings['last_7d'] ?? 0),  'icon' => 'bi-whatsapp'],
@@ -98,6 +100,12 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_
             </div>
         </div>
     <?php endforeach; ?>
+    <p class="col-12 small text-muted mb-0" id="visitor-note">
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
+        Daily visitors: each visitor is counted once per day (same device and browser). A visitor who comes back on
+        another day is counted again, so the 7- and 30-day figures are the sum of the daily counts, not distinct people.
+        Bots and admin pages are excluded.
+    </p>
 </section>
 
 <section aria-label="Content counts" class="row g-3 mb-4">
@@ -134,7 +142,7 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_
                 </span>
             </div>
             <div class="card-body" style="height:300px">
-                <canvas id="chart-daily" role="img" aria-label="Daily page views and unique visitors for the selected range"></canvas>
+                <canvas id="chart-daily" role="img" aria-label="Daily page views and daily visitors for the selected range"></canvas>
                 <p id="chart-daily-empty" class="text-muted text-center my-4 d-none">No data available yet.</p>
             </div>
         </div>
@@ -143,7 +151,7 @@ $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_
         <div class="card chart-card h-100">
             <div class="card-header">Last 7 days</div>
             <div class="card-body" style="height:300px">
-                <canvas id="chart-weekly" role="img" aria-label="Page views compared with unique visitors for the last 7 days"></canvas>
+                <canvas id="chart-weekly" role="img" aria-label="Page views compared with daily visitors for the last 7 days"></canvas>
                 <p id="chart-weekly-empty" class="text-muted text-center my-4 d-none">No data available yet.</p>
             </div>
         </div>

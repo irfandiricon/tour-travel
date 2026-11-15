@@ -234,7 +234,7 @@
                         pointBorderWidth: 2
                     },
                     {
-                        label: 'Unique visitors',
+                        label: 'Daily visitors',
                         data: unique,
                         borderColor: THEME.barPrimary,
                         backgroundColor: THEME.barPrimary,
@@ -271,7 +271,7 @@
         draw();
     }
 
-    /** Grouped bars: page views vs unique visitors for the last 7 days. */
+    /** Grouped bars: page views vs daily visitors for the last 7 days. */
     function weeklyChart(data) {
         var canvas = document.getElementById('chart-weekly');
         if (!canvas) {
@@ -307,7 +307,7 @@
                         maxBarThickness: 18
                     },
                     {
-                        label: 'Unique visitors',
+                        label: 'Daily visitors',
                         data: unique,
                         backgroundColor: THEME.barSecondary,
                         borderRadius: 6,
