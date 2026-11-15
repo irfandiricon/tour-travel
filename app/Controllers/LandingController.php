@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\Concerns\BuildsPublicContent;
 use App\Libraries\LanguageResolver;
 use App\Libraries\SeoMetaBuilder;
+use App\Libraries\TestimonialValidator;
 use App\Libraries\VisitorTracker;
 use App\Libraries\WhatsAppLinkBuilder;
 
@@ -16,7 +17,7 @@ class LandingController extends PublicBaseController
      * How many items each section shows on the landing page. The rest is on the
      * dedicated page (see ListingController), reached via the "View more" button.
      */
-    public const SECTION_LIMITS = ['fleet' => 3, 'gallery' => 6, 'news' => 9];
+    public const SECTION_LIMITS = ['fleet' => 3, 'gallery' => 6, 'news' => 9, 'testimonials' => 9];
 
     /** Width / height from which the About picture counts as a banner and is stacked above the text. */
     public const WIDE_IMAGE_RATIO = 1.6;
@@ -25,6 +26,7 @@ class LandingController extends PublicBaseController
     protected $apiNews;
     protected $apiFaq;
     protected $apiGallery;
+    protected $apiTestimonial;
     protected $apiSiteConfig;
     protected $visitorTracker;
 
@@ -35,6 +37,7 @@ class LandingController extends PublicBaseController
         $this->apiNews        = new ApiNewsController();
         $this->apiFaq         = new ApiFaqController();
         $this->apiGallery     = new ApiGalleryController();
+        $this->apiTestimonial = new ApiTestimonialController();
         $this->apiSiteConfig  = new ApiSiteConfigController();
     }
 
@@ -64,6 +67,9 @@ class LandingController extends PublicBaseController
 
         $limits = self::SECTION_LIMITS;
 
+        $testimonialRows = $this->section($this->apiTestimonial, 'apiListActive');
+        $testimonials    = $this->buildTestimonialItems($testimonialRows);
+
         $viewModel = [
             'lang'        => $lang,
             'languages'   => LanguageResolver::SUPPORTED,
@@ -87,6 +93,9 @@ class LandingController extends PublicBaseController
             'news'        => array_slice($newsAll, 0, $limits['news']),
             'faq'         => $faq,
             'gallery'     => array_slice($galleryAll, 0, $limits['gallery']),
+            'testimonials' => array_slice($testimonials, 0, $limits['testimonials']),
+            // Average over every published review, not just the ones shown.
+            'ratingSummary' => TestimonialValidator::summary($testimonials),
             // Real totals (the lists above are previews) and the pages the "View more" buttons open.
             'totals'      => [
                 'fleet'       => count($fleetAll),
@@ -107,6 +116,30 @@ class LandingController extends PublicBaseController
         $this->trackVisit();
 
         return view('landing/index', $viewModel, ['saveData' => false]);
+    }
+
+    /**
+     * Published reviews with a valid 1-5 rating (newest first, as the API returns them).
+     * The review is shown in the visitor's language, falling back to English when not translated.
+     *
+     * @param array<int, array<string, mixed>> $rows
+     *
+     * @return array<int, array{name: string, photo: string, rating: int, review: string}>
+     */
+    private function buildTestimonialItems(array $rows): array
+    {
+        $out = [];
+        foreach ($rows as $row) {
+            $rating = TestimonialValidator::rating(is_scalar($row['rating'] ?? null) ? (string) $row['rating'] : null);
+            $name   = trim((string) ($row['customer_name'] ?? ''));
+            $review = trim(LanguageResolver::resolve($this->translations($row, 'review'), $this->lang));
+            if (($row['status'] ?? 'published') !== 'published' || $rating === null || $name === '' || $review === '') {
+                continue;
+            }
+            $out[] = ['name' => $name, 'photo' => trim((string) ($row['photo_path'] ?? '')), 'rating' => $rating, 'review' => $review];
+        }
+
+        return $out;
     }
 
     /**

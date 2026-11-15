@@ -2,6 +2,7 @@
 
 namespace App\Controllers\ApiV1;
 
+use App\Libraries\AdminSearch;
 use App\Libraries\ContentValidator;
 use App\Models\FaqModel;
 use CodeIgniter\API\ResponseTrait;
@@ -16,6 +17,9 @@ class ContentsFaqsController extends Controller
     use ResponseTrait;
 
     protected $faqModel;
+
+    /** Columns the admin search looks in. */
+    public const SEARCH_COLUMNS = ['question_en', 'question_id', 'question_ms', 'answer_en', 'answer_id', 'answer_ms', 'status'];
 
     private const FIELDS = [
         'question_en', 'question_id', 'question_ms',
@@ -33,8 +37,9 @@ class ContentsFaqsController extends Controller
         $perPage = max(1, min(100, (int) ($this->request->getGet('per_page') ?: 10)));
         $page    = max(1, (int) ($this->request->getGet('page') ?: 1));
 
-        $total = (new FaqModel())->notDeleted()->countAllResults();
-        $rows  = (new FaqModel())->notDeleted()
+        $search = AdminSearch::term($this->request->getGet('search'));
+        $total  = AdminSearch::apply((new FaqModel())->notDeleted(), $search, self::SEARCH_COLUMNS)->countAllResults();
+        $rows   = AdminSearch::apply((new FaqModel())->notDeleted(), $search, self::SEARCH_COLUMNS)
             ->orderBy('id', 'DESC')
             ->findAll($perPage, ($page - 1) * $perPage);
 

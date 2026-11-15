@@ -156,7 +156,7 @@ final class NewsDetailTest extends CIUnitTestCase
         $html = $this->detail($this->rows(), 2);
 
         $this->assertMatchesRegularExpression('#<li class="breadcrumb-item"><a href="[^"]*/news">News & Information</a></li>#', $html);
-        $this->assertMatchesRegularExpression('#<a class="nav-link active" aria-current="page" href="[^"]*/news"#', $html);
+        $this->assertMatchesRegularExpression('#<a class="nav-link active" href="https?://[^"]*/\#news">#', $html);
         $this->assertStringContainsString('?return=' . rawurlencode('news/2'), $html, 'language switch returns to this item');
     }
 

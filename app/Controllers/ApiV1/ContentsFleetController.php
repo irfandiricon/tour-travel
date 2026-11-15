@@ -2,6 +2,7 @@
 
 namespace App\Controllers\ApiV1;
 
+use App\Libraries\AdminSearch;
 use App\Libraries\ContentFilter;
 use App\Libraries\ContentValidator;
 use App\Libraries\ImageUploadHandler;
@@ -37,10 +38,14 @@ class ContentsFleetController extends ResourceController
         $this->imageHandler = new ImageUploadHandler();
     }
 
-    /** GET contents-fleet (paginated, non-deleted). */
+    /** Columns the admin search looks in. */
+    public const SEARCH_COLUMNS = ['name_en', 'name_id', 'name_ms', 'description_en', 'description_id', 'description_ms', 'status'];
+
+    /** GET contents-fleet?page=&per_page=&search= (paginated, non-deleted). */
     public function index()
     {
-        $rows = $this->model->notDeleted()->orderBy('id', 'DESC')->findAll();
+        AdminSearch::apply($this->model->notDeleted(), AdminSearch::term($this->request->getGet('search')), self::SEARCH_COLUMNS);
+        $rows = $this->model->orderBy('id', 'DESC')->findAll();
         $page = Paginator::paginate(
             $rows,
             $this->request->getGet('page'),

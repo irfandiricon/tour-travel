@@ -12,6 +12,7 @@ $primaryNav = [
     ['path' => 'admin/fleet',       'url' => base_url('admin/fleet'),       'icon' => 'bi-truck-front',     'label' => 'Fleet'],
     ['path' => 'admin/faq',         'url' => base_url('admin/faq'),         'icon' => 'bi-question-circle', 'label' => 'FAQ'],
     ['path' => 'admin/gallery',     'url' => base_url('admin/gallery'),     'icon' => 'bi-images',          'label' => 'Gallery'],
+    ['path' => 'admin/testimonials','url' => base_url('admin/testimonials'),'icon' => 'bi-star-half',       'label' => 'Customer Reviews'],
     ['path' => 'admin/users',       'url' => base_url('admin/users'),       'icon' => 'bi-people',          'label' => 'Master User'],
 ];
 $siteConfigActive = ui_nav_is_active($path, 'admin/site-config');

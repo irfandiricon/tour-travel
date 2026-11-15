@@ -64,6 +64,9 @@ a { color: var(--lp-link); }
   background: var(--lp-lime); color: var(--lp-lime-ink); font-size: 1.1rem;
 }
 .brand-text { font-size: 1rem; line-height: 1.2; }
+/* Logo image: fixed height, width from its 468x96 ratio (about 195px at 40px). */
+.brand-logo { display: block; width: auto; height: 40px; max-width: 60vw; object-fit: contain; }
+@media (max-width: 575.98px) { .brand-logo { height: 34px; } }
 .navbar-toggler {
   min-width: 44px; min-height: 44px; border: 1px solid var(--c-border); border-radius: var(--r-pill);
 }
@@ -132,6 +135,44 @@ a { color: var(--lp-link); }
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
 .hero-subtitle { margin: 0; max-width: 40rem; font-size: 1.125rem; color: var(--c-muted); }
+
+/* Hero text: heavy weight, navy-to-blue gradient from the logo, soft shadow; the last word in
+   solid logo orange with a lime marker stroke underneath. Gradient text needs background-clip: text,
+   so the shadow is a filter (text-shadow would show through the transparent fill). */
+.hero-section .hero-title {
+  font-weight: 800; letter-spacing: -.035em; line-height: 1.05;
+  color: var(--lp-navy);
+  filter: drop-shadow(0 2px 0 rgba(255, 255, 255, .75)) drop-shadow(0 12px 22px rgba(11, 46, 92, .18));
+}
+.hero-section .hero-title .hl {
+  position: relative; isolation: isolate; display: inline-block;
+  padding: 0 .08em; border-radius: 0; background: none;
+  color: var(--lp-orange-deep);
+}
+.hero-section .hero-title .hl::after {
+  content: ""; position: absolute; z-index: -1;
+  left: -.04em; right: -.04em; bottom: .06em; height: .26em;
+  background: var(--lp-lime); border-radius: var(--r-pill);
+  transform: rotate(-1.5deg); transform-origin: left center;
+}
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hero-section .hero-title {
+    background: linear-gradient(100deg, var(--lp-navy) 0%, var(--lp-navy) 35%, var(--lp-blue) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+  }
+  /* Solid fill on purpose: a clipped gradient here would be painted as the element's background,
+     i.e. below the lime marker (::after), which would then cover the letters. */
+  .hero-section .hero-title .hl { -webkit-text-fill-color: var(--lp-orange-deep); }
+}
+.hero-section .hero-subtitle { font-size: clamp(1.05rem, 1rem + .35vw, 1.25rem); font-weight: 500; line-height: 1.6; color: var(--lp-hero-sub); }
+/* Windows high contrast: drop the gradient so the system text colour is used. */
+@media (forced-colors: active) {
+  .hero-section .hero-title, .hero-section .hero-title .hl {
+    background: none; -webkit-text-fill-color: currentColor; color: CanvasText; filter: none;
+  }
+  .hero-section .hero-title .hl::after { display: none; }
+}
 .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
 .trust-pill {
   display: inline-flex; align-items: center; gap: .5rem; margin: 0; padding: .5rem 1rem;
@@ -190,8 +231,20 @@ a { color: var(--lp-link); }
 }
 
 /* ---------- Bagian ---------- */
-.section { padding: var(--space-section) 0 0; }
-.section:last-of-type { padding-bottom: var(--space-section); }
+.section { padding: var(--space-section) 0; }
+/* Each landing section has its own full-width background (see the .section--* classes below). */
+.section--white { background: var(--c-surface); }
+.section--sky { background: linear-gradient(180deg, var(--lp-bg-sky) 0%, var(--c-surface) 100%); }
+.section--sand { background: var(--lp-bg-sand); }
+.section--mist { background: var(--lp-bg-mist); }
+.section--peach {
+  background:
+    radial-gradient(60rem 22rem at 85% 0%, var(--lp-bg-peach) 0%, transparent 70%),
+    radial-gradient(50rem 20rem at 10% 100%, var(--lp-bg-sky) 0%, transparent 70%),
+    var(--c-surface);
+}
+.section--mint { background: var(--lp-bg-mint); }
+.section--sky-deep { background: linear-gradient(180deg, var(--lp-bg-sky) 0%, var(--lp-bg-sky-deep) 100%); }
 .section-head { text-align: center; margin: 0 auto 2rem; max-width: 40rem; }
 .section-head h2, .section h2 {
   margin: 0; text-align: center; color: var(--c-ink);
@@ -543,3 +596,37 @@ a.news-card__link:hover .news-card__more i { transform: translateX(4px); }
   .zoomable img, .zoom-icon, .lightbox__close, .lightbox__nav { transition: none; }
   .zoomable:hover img, .zoomable:focus-visible img { transform: none; }
 }
+
+/* ---------- Penilaian pelanggan (testimoni) ---------- */
+.testi-summary { display: inline-flex; align-items: center; gap: .4rem; font-weight: 600; color: var(--c-ink); }
+.testi-summary .bi { color: #f59e0b; }
+.news-rail > .testi-card { flex: 0 0 85%; scroll-snap-align: start; }
+@media (min-width: 768px) { .news-rail > .testi-card { flex-basis: calc((100% - 1rem) / 2); } }
+@media (min-width: 1200px) { .news-rail > .testi-card { flex-basis: calc((100% - 2rem) / 3); } }
+.news-carousel--testi .news-carousel__btn { top: 50%; }
+.testi-card {
+  display: flex; flex-direction: column; gap: 1rem; margin: 0; padding: 1.5rem;
+  background: var(--c-surface); color: var(--c-text); border-radius: var(--r-xl); box-shadow: var(--sh-sm);
+}
+.testi-card__stars { display: flex; gap: .2rem; color: #f59e0b; font-size: 1.1rem; }
+.testi-card__stars .bi-star { color: #d0d5dd; }
+.testi-card__quote { flex: 1; margin: 0; }
+.testi-card__quote p { margin: 0; color: var(--c-text); line-height: 1.7; white-space: pre-line; }
+.testi-card__quote p::before { content: "\201C"; } 
+.testi-card__quote p::after { content: "\201D"; }
+.testi-card__author { display: flex; align-items: center; gap: .75rem; padding-top: 1rem; border-top: 1px solid var(--c-border); }
+.testi-card__avatar { flex: none; width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: var(--c-surface-2); }
+.testi-card__avatar--initials {
+  display: grid; place-items: center; background: var(--c-ink); color: var(--lp-lime);
+  font-weight: 700; font-size: 1rem; letter-spacing: .02em;
+}
+.testi-card__name { font-weight: 700; color: var(--c-ink); }
+.testi-controls { display: flex; justify-content: center; margin-top: .75rem; }
+.carousel-toggle {
+  display: grid; place-items: center; width: 2.5rem; height: 2.5rem; padding: 0;
+  border: 1px solid var(--c-border); border-radius: 50%; background: var(--c-surface); color: var(--c-ink);
+  box-shadow: var(--sh-sm); transition: background-color .2s ease;
+}
+.carousel-toggle:hover { background: var(--lp-lime); }
+.carousel-toggle:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.carousel-toggle[hidden] { display: none; }

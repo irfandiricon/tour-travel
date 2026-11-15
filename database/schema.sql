@@ -155,6 +155,24 @@ CREATE TABLE IF NOT EXISTS `site_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
+-- c_testimonials : penilaian pelanggan (rating bintang 1-5)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `c_testimonials` (
+  `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `customer_name` VARCHAR(100) NOT NULL,
+  `photo_path`    VARCHAR(500) NULL,
+  `rating`        TINYINT UNSIGNED NOT NULL DEFAULT 5,
+  `review_en`     TEXT NOT NULL,
+  `review_id`     TEXT NULL,
+  `review_ms`     TEXT NULL,
+  `status`        ENUM('draft','published','deleted') NOT NULL DEFAULT 'draft',
+  `created_at`    DATETIME NULL,
+  `updated_at`    DATETIME NULL,
+  `deleted_at`    DATETIME NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_c_testimonials_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- ------------------------------------------------------------
 -- admin_users : akun CMS (password disimpan sebagai hash)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `admin_users` (

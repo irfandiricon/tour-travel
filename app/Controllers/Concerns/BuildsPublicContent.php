@@ -22,8 +22,12 @@ trait BuildsPublicContent
      *
      * @return array<mixed>
      */
-    protected function section(object $proxy, string $method, bool $assoc = false): array
+    protected function section(?object $proxy, string $method, bool $assoc = false): array
     {
+        if ($proxy === null) {
+            return [];
+        }
+
         try {
             $result = $proxy->{$method}();
             $status = (int) ($result['status'] ?? 500);

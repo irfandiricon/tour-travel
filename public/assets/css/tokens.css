@@ -34,6 +34,20 @@
   --lp-lime: #e6f542;
   --lp-lime-ink: #2d2d30;
   --lp-link: #1f5fd0;
+  /* Judul hero: warna logo. Kontras di atas latar hero (#dbe9fb, teks besar >= 3:1):
+     navy 10.9:1, biru 4.7:1, oranye tua 4.7:1, oranye 3.5:1, subjudul 8.0:1. */
+  --lp-navy: #0b2e5c;
+  --lp-blue: #1f5fd0;
+  --lp-orange-deep: #b8390a;
+  --lp-orange: #d9480f;
+  --lp-hero-sub: #3a4454;
+  /* Latar section landing (tint lembut dari warna logo). Teks --c-text / --c-muted tetap >= 4.5:1 di atasnya. */
+  --lp-bg-sky: #edf5fd;
+  --lp-bg-sky-deep: #dcebfa;
+  --lp-bg-sand: #fdf4e9;
+  --lp-bg-peach: #fff1e3;
+  --lp-bg-mint: #eef7f1;
+  --lp-bg-mist: #f3f6fa;
   /* Hijau aksen untuk tombol WhatsApp: putih di atasnya ~6.6:1 (>= 4.5:1); hover ~9:1 */
   --accent: #0a6b35;
   --accent-hover: #085528;

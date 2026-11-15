@@ -208,9 +208,13 @@
   });
 })();
 
-// News & Information carousel: the prev/next buttons scroll the rail by one visible "page" of
-// cards (scroll-snap aligns them). Buttons are disabled at the ends and hidden when all cards fit.
-(function initNewsCarousel() {
+// Card carousels (News & Information, Customer Reviews). The prev/next buttons scroll the rail by one
+// visible "page" of cards (scroll-snap aligns them); they are hidden when every card fits.
+//   data-loop            prev/next wrap around (last -> first, first -> last) instead of stopping.
+//   data-autoplay="ms"   advance one card every ms and rewind to the first card after the last.
+//                        Pauses while hovered, while a card has keyboard focus, while the tab is hidden,
+//                        and with the [data-carousel-toggle] button (WCAG 2.2.2). Off for reduced motion.
+(function initCardCarousels() {
   'use strict';
 
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -223,24 +227,87 @@
       return;
     }
 
-    function update() {
-      var max = rail.scrollWidth - rail.clientWidth;
-      var fits = max <= 2;
-      prev.hidden = next.hidden = fits;
-      prev.disabled = rail.scrollLeft <= 2;
-      next.disabled = rail.scrollLeft >= max - 2;
-    }
+    var loop = root.hasAttribute('data-loop');
+    var delay = parseInt(root.getAttribute('data-autoplay') || '0', 10) || 0;
+    var toggle = root.parentNode ? root.parentNode.querySelector('[data-carousel-toggle]') : null;
+    var stopped = reduce;          // pause button (or reduced motion)
+    var hovered = false;
+    var focused = false;
+    var timer = null;
 
-    function go(dir) {
-      var card = rail.querySelector('.news-card');
+    function maxScroll() { return rail.scrollWidth - rail.clientWidth; }
+    function fits() { return maxScroll() <= 2; }
+    function atStart() { return rail.scrollLeft <= 2; }
+    function atEnd() { return rail.scrollLeft >= maxScroll() - 2; }
+    function behavior() { return reduce ? 'auto' : 'smooth'; }
+
+    function cardStep() {
+      var card = rail.firstElementChild; // news or review card
       var gap = parseFloat(window.getComputedStyle(rail).columnGap) || 0;
-      var step = card ? card.getBoundingClientRect().width + gap : rail.clientWidth;
-      var perPage = Math.max(1, Math.floor((rail.clientWidth + gap) / step));
-      rail.scrollBy({ left: dir * step * perPage, behavior: reduce ? 'auto' : 'smooth' });
+      return card ? card.getBoundingClientRect().width + gap : rail.clientWidth;
     }
 
-    prev.addEventListener('click', function () { go(-1); });
-    next.addEventListener('click', function () { go(1); });
+    function update() {
+      var all = fits();
+      prev.hidden = next.hidden = all;
+      prev.disabled = !loop && atStart();
+      next.disabled = !loop && atEnd();
+      if (toggle) {
+        toggle.hidden = all || delay <= 0;
+      }
+    }
+
+    /** dir: 1 or -1; cards: how many cards to move (0 = one visible page). */
+    function go(dir, cards) {
+      var step = cardStep();
+      var perPage = Math.max(1, Math.floor((rail.clientWidth + 1) / step));
+      var by = step * (cards || perPage);
+
+      if (loop && dir > 0 && atEnd()) {
+        rail.scrollTo({ left: 0, behavior: behavior() });
+      } else if (loop && dir < 0 && atStart()) {
+        rail.scrollTo({ left: maxScroll(), behavior: behavior() });
+      } else {
+        rail.scrollBy({ left: dir * by, behavior: behavior() });
+      }
+    }
+
+    function renderToggle() {
+      if (!toggle) {
+        return;
+      }
+      var label = toggle.getAttribute(stopped ? 'data-label-play' : 'data-label-pause') || '';
+      var icon = toggle.querySelector('i');
+      toggle.setAttribute('aria-pressed', stopped ? 'true' : 'false');
+      if (label) {
+        toggle.setAttribute('aria-label', label);
+        toggle.setAttribute('title', label);
+      }
+      if (icon) {
+        icon.classList.remove('bi-pause-fill', 'bi-play-fill');
+        icon.classList.add(stopped ? 'bi-play-fill' : 'bi-pause-fill');
+      }
+    }
+
+    function tick() {
+      if (stopped || hovered || focused || document.hidden || fits()) {
+        return;
+      }
+      go(1, 1);
+    }
+
+    function restart() {
+      if (delay <= 0) {
+        return;
+      }
+      if (timer) {
+        window.clearInterval(timer);
+      }
+      timer = window.setInterval(tick, delay);
+    }
+
+    prev.addEventListener('click', function () { go(-1); restart(); });
+    next.addEventListener('click', function () { go(1); restart(); });
     rail.addEventListener('keydown', function (e) {
       if (e.target !== rail) {
         return;
@@ -248,14 +315,58 @@
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
         go(-1);
+        restart();
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
         go(1);
+        restart();
       }
     });
     rail.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
     window.addEventListener('load', update);
+
+    if (delay > 0) {
+      root.addEventListener('mouseenter', function () { hovered = true; });
+      root.addEventListener('mouseleave', function () { hovered = false; restart(); });
+      root.addEventListener('focusin', function () { focused = true; });
+      root.addEventListener('focusout', function (e) {
+        if (!root.contains(e.relatedTarget)) {
+          focused = false;
+          restart();
+        }
+      });
+      // A swipe on a touch screen: wait a full interval before moving on.
+      rail.addEventListener('touchstart', restart, { passive: true });
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          stopped = !stopped;
+          renderToggle();
+          restart();
+        });
+      }
+      renderToggle();
+      restart();
+    }
+
     update();
+  });
+})();
+
+// Mobile menu: after tapping a menu item that scrolls to a section on this page, close the menu
+// so the section is not hidden behind it.
+(function initNavCollapse() {
+  'use strict';
+
+  var menu = document.getElementById('site-nav');
+  if (!menu) {
+    return;
+  }
+  menu.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest ? e.target.closest('a.nav-link') : null;
+    if (!link || !menu.classList.contains('show') || !window.bootstrap || !window.bootstrap.Collapse) {
+      return;
+    }
+    window.bootstrap.Collapse.getOrCreateInstance(menu, { toggle: false }).hide();
   });
 })();

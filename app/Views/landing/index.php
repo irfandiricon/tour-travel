@@ -31,6 +31,7 @@ $labelsByLang = [
         'pause' => 'Pause slideshow', 'play' => 'Play slideshow',
         'statFleet' => 'Vehicles in our fleet', 'statGallery' => 'Moments captured', 'statNews' => 'News & updates',
         'statFaq' => 'Questions answered',
+        'testimonials' => 'What Our Customers Say', 'ratingSummary' => '{avg} out of 5 from {n} reviews', 'ratingSummaryOne' => '{avg} out of 5 from 1 review', 'rated' => 'Rated {n} out of 5', 'reviewsPause' => 'Pause reviews', 'reviewsPlay' => 'Play reviews',
         'moreFleetSubtitle' => 'Pick the ride that fits your trip',
     ],
     'id' => [
@@ -47,6 +48,7 @@ $labelsByLang = [
         'pause' => 'Jeda slideshow', 'play' => 'Putar slideshow',
         'statFleet' => 'Armada kami', 'statGallery' => 'Momen terabadi', 'statNews' => 'Berita & kabar',
         'statFaq' => 'Pertanyaan terjawab',
+        'testimonials' => 'Kata Pelanggan Kami', 'ratingSummary' => '{avg} dari 5 berdasarkan {n} ulasan', 'ratingSummaryOne' => '{avg} dari 5 berdasarkan 1 ulasan', 'rated' => 'Rating {n} dari 5', 'reviewsPause' => 'Jeda ulasan', 'reviewsPlay' => 'Putar ulasan',
         'moreFleetSubtitle' => 'Pilih kendaraan yang pas untuk perjalananmu',
     ],
     'ms' => [
@@ -63,6 +65,7 @@ $labelsByLang = [
         'pause' => 'Jeda tayangan', 'play' => 'Main tayangan',
         'statFleet' => 'Kenderaan dalam armada', 'statGallery' => 'Detik diabadikan', 'statNews' => 'Berita & kemas kini',
         'statFaq' => 'Soalan dijawab',
+        'testimonials' => 'Kata Pelanggan Kami', 'ratingSummary' => '{avg} daripada 5 berdasarkan {n} ulasan', 'ratingSummaryOne' => '{avg} daripada 5 berdasarkan 1 ulasan', 'rated' => 'Penilaian {n} daripada 5', 'reviewsPause' => 'Jeda ulasan', 'reviewsPlay' => 'Main ulasan',
         'moreFleetSubtitle' => 'Pilih kenderaan yang sesuai untuk perjalanan anda',
     ],
 ];
@@ -77,6 +80,8 @@ $fleet   = is_array($fleet ?? null) ? $fleet : [];
 $news    = is_array($news ?? null) ? $news : [];
 $faq     = is_array($faq ?? null) ? $faq : [];
 $gallery = is_array($gallery ?? null) ? $gallery : [];
+$testimonials  = is_array($testimonials ?? null) ? array_values($testimonials) : [];
+$ratingSummary = is_array($ratingSummary ?? null) && (int) ($ratingSummary['count'] ?? 0) > 0 ? $ratingSummary : null;
 $about   = (string) ($about ?? '');
 $aboutTitle = trim((string) ($aboutTitle ?? ''));
 $aboutImage = trim((string) ($aboutImage ?? ''));
@@ -240,7 +245,7 @@ $aboutParagraphs = array_values(array_filter(
     static fn (string $para): bool => $para !== ''
 ));
 ?>
-<section id="about" class="section about-section" aria-labelledby="about-title">
+<section id="about" class="section about-section section--white" aria-labelledby="about-title">
     <div class="container">
         <div class="about-grid<?= $aboutImage === '' ? ' about-grid--single' : ($aboutImageWide ? ' about-grid--wide' : '') ?>">
             <?php if ($aboutImage !== ''): ?>
@@ -267,7 +272,7 @@ $aboutParagraphs = array_values(array_filter(
         </div>
     </div>
 </section>
-<section id="fleet" class="section" aria-labelledby="fleet-title">
+<section id="fleet" class="section section--sky" aria-labelledby="fleet-title">
     <div class="container">
         <div class="section-head">
             <h2 id="fleet-title"><?= esc($t['fleet']) ?></h2>
@@ -286,7 +291,7 @@ $aboutParagraphs = array_values(array_filter(
     </div>
 </section>
 
-<section id="gallery" class="section" aria-labelledby="gallery-title">
+<section id="gallery" class="section section--sand" aria-labelledby="gallery-title">
     <div class="container">
         <div class="section-card">
             <div class="section-head">
@@ -306,7 +311,7 @@ $aboutParagraphs = array_values(array_filter(
     </div>
 </section>
 
-<section id="news" class="section" aria-labelledby="news-title">
+<section id="news" class="section section--mist" aria-labelledby="news-title">
     <div class="container">
         <div class="section-head">
             <h2 id="news-title"><?= esc($t['news']) ?></h2>
@@ -334,7 +339,46 @@ $aboutParagraphs = array_values(array_filter(
     </div>
 </section>
 
-<section id="faq" class="section" aria-labelledby="faq-title">
+<?php if ($testimonials !== []): ?>
+<section id="testimonials" class="section section--peach" aria-labelledby="testimonials-title">
+    <div class="container">
+        <div class="section-head">
+            <h2 id="testimonials-title"><?= esc($t['testimonials']) ?></h2>
+            <?php if ($ratingSummary !== null): ?>
+                <?php
+                $avg     = number_format((float) $ratingSummary['average'], 1, $lang === 'en' ? '.' : ',', '');
+                $count   = (int) $ratingSummary['count'];
+                $summary = str_replace(['{avg}', '{n}'], [$avg, (string) $count], $count === 1 ? $t['ratingSummaryOne'] : $t['ratingSummary']);
+                ?>
+                <p class="section-sub testi-summary"><i class="bi bi-star-fill" aria-hidden="true"></i> <?= esc($summary) ?></p>
+            <?php endif; ?>
+        </div>
+        <div class="news-carousel news-carousel--testi" data-news-carousel data-loop data-autoplay="5000">
+            <button type="button" class="news-carousel__btn news-carousel__btn--prev" data-news-prev
+                    aria-controls="testimonials-rail" aria-label="<?= esc($carouselLabels['prev'], 'attr') ?>">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+            </button>
+            <div id="testimonials-rail" class="news-rail" tabindex="0" role="group" aria-label="<?= esc($t['testimonials'], 'attr') ?>">
+                <?php foreach ($testimonials as $r): ?>
+                    <?= ui_partial('testimonial_card', ['r' => $r, 't' => $t, 'imgUrl' => $imgUrl]) ?>
+                <?php endforeach; ?>
+            </div>
+            <button type="button" class="news-carousel__btn news-carousel__btn--next" data-news-next
+                    aria-controls="testimonials-rail" aria-label="<?= esc($carouselLabels['next'], 'attr') ?>">
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="testi-controls">
+            <button type="button" class="carousel-toggle" data-carousel-toggle aria-pressed="false" aria-controls="testimonials-rail"
+                    data-label-pause="<?= esc($t['reviewsPause'], 'attr') ?>" data-label-play="<?= esc($t['reviewsPlay'], 'attr') ?>"
+                    aria-label="<?= esc($t['reviewsPause'], 'attr') ?>" title="<?= esc($t['reviewsPause'], 'attr') ?>">
+                <i class="bi bi-pause-fill" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+<section id="faq" class="section section--mint" aria-labelledby="faq-title">
     <div class="container">
         <div class="section-head">
             <h2 id="faq-title"><?= esc($t['faq']) ?></h2>
@@ -361,7 +405,7 @@ $aboutParagraphs = array_values(array_filter(
     </div>
 </section>
 
-<section id="contact" class="section" aria-labelledby="contact-title">
+<section id="contact" class="section section--sky-deep" aria-labelledby="contact-title">
     <div class="container">
         <div class="contact-card">
             <h2 id="contact-title"><?= esc($t['contact']) ?></h2>

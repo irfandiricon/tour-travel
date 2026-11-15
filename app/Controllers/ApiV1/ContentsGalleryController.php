@@ -2,6 +2,7 @@
 
 namespace App\Controllers\ApiV1;
 
+use App\Libraries\AdminSearch;
 use App\Libraries\ImageUploadHandler;
 use App\Models\GalleryModel;
 use CodeIgniter\HTTP\Files\UploadedFile;
@@ -21,6 +22,9 @@ class ContentsGalleryController extends ResourceController
 
     private const UPLOAD_DIR = 'uploads/gallery';
 
+    /** Columns the admin search looks in. */
+    public const SEARCH_COLUMNS = ['caption_en', 'caption_id', 'caption_ms', 'status'];
+
     public function __construct()
     {
         $this->model_gallery = new GalleryModel();
@@ -33,8 +37,9 @@ class ContentsGalleryController extends ResourceController
         $perPage = max(1, min(100, (int) ($this->request->getGet('per_page') ?: 10)));
         $page    = max(1, (int) ($this->request->getGet('page') ?: 1));
 
-        $total = (new GalleryModel())->notDeleted()->countAllResults();
-        $rows  = (new GalleryModel())->notDeleted()
+        $search = AdminSearch::term($this->request->getGet('search'));
+        $total  = AdminSearch::apply((new GalleryModel())->notDeleted(), $search, self::SEARCH_COLUMNS)->countAllResults();
+        $rows   = AdminSearch::apply((new GalleryModel())->notDeleted(), $search, self::SEARCH_COLUMNS)
             ->orderBy('id', 'DESC')
             ->findAll($perPage, ($page - 1) * $perPage);
 

@@ -266,4 +266,21 @@ final class LandingViewTest extends CIUnitTestCase
         $this->assertDoesNotMatchRegularExpression('#querySelectorAll\(\s*[\'"]\.faq-question#', $js);
         $this->assertStringNotContainsString('panel.hidden', $js);
     }
+
+    public function testHeroTitleIsBoldColourfulAndShadowed(): void
+    {
+        $css    = (string) file_get_contents(FCPATH . 'assets/css/landing.css');
+        $tokens = (string) file_get_contents(FCPATH . 'assets/css/tokens.css');
+
+        $this->assertMatchesRegularExpression('/\.hero-section \.hero-title \{[^}]*font-weight: 800;[^}]*filter: drop-shadow/s', $css);
+        $this->assertStringContainsString('background: linear-gradient(100deg, var(--lp-navy) 0%, var(--lp-navy) 35%, var(--lp-blue) 100%);', $css);
+        $this->assertStringContainsString('-webkit-background-clip: text; background-clip: text;', $css);
+        $this->assertStringContainsString('.hero-section .hero-title .hl { -webkit-text-fill-color: var(--lp-orange-deep); }', $css, 'last word drawn above its marker');
+        $this->assertMatchesRegularExpression('/\.hero-section \.hero-title \.hl::after \{[^}]*z-index: -1;[^}]*background: var\(--lp-lime\)/s', $css);
+        $this->assertStringContainsString('@media (forced-colors: active)', $css);
+        $this->assertMatchesRegularExpression('/\.about-section \.about-title \{/', $css, 'About title keeps its own style');
+        foreach (['--lp-navy: #0b2e5c;', '--lp-blue: #1f5fd0;', '--lp-orange-deep: #b8390a;', '--lp-orange: #d9480f;', '--lp-hero-sub: #3a4454;'] as $token) {
+            $this->assertStringContainsString($token, $tokens);
+        }
+    }
 }

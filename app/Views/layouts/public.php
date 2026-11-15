@@ -28,13 +28,24 @@ if (trim((string) ($brand ?? '')) !== '') {
 }
 $langNames  = ['en' => 'English', 'id' => 'Indonesia', 'ms' => 'Melayu'];
 
-// Sub pages (fleet, gallery, news) set `navActive` (their slug) and `navBase`
-// (landing URL) so About/FAQ/Contact anchors point back to the landing page.
+// Navbar logo: trimmed 468x96 copy of uploads/brand/Kimigo Travel Logo with Bridge and Airplane.png
+// (WebP with a PNG fallback). Without the file the icon + brand name are shown instead.
+$brandLogo = null;
+if (is_file(FCPATH . 'uploads/brand/kimigo-travel-logo.png')) {
+    $brandLogo = [
+        'png'    => 'uploads/brand/kimigo-travel-logo.png',
+        'webp'   => is_file(FCPATH . 'uploads/brand/kimigo-travel-logo.webp') ? 'uploads/brand/kimigo-travel-logo.webp' : null,
+        'width'  => 468,
+        'height' => 96,
+    ];
+}
+// Every menu item scrolls to its section on the landing page. Sub pages (fleet, gallery, news and
+// news detail) set `navBase` (landing URL) so the anchors lead back there, and `navActive` (their
+// slug) to highlight the matching item. No aria-current: the link goes to the landing section, not
+// to the page you are on.
 $navBase    = isset($navBase) ? (string) $navBase : '';
 $navActive  = isset($navActive) ? (string) $navActive : '';
-$navPageUrl = static fn (string $slug): string => site_url($slug);
 $navClass   = static fn (string $slug): string => 'nav-link' . ($slug === $navActive ? ' active' : '');
-$navCurrent = static fn (string $slug): string => $slug === $navActive ? ' aria-current="page"' : '';
 // $navReturn (e.g. news/5 on a detail page) overrides where the language switcher returns to.
 $navReturn  = isset($navReturn) && (string) $navReturn !== '' ? (string) $navReturn : $navActive;
 $langReturn = $navReturn !== '' ? '?return=' . rawurlencode($navReturn) : '';
@@ -65,19 +76,29 @@ $floatingWa    = is_string($floatingWa) && trim($floatingWa) !== '' ? $floatingW
         <div class="container">
           <div class="nav-pill">
             <a class="navbar-brand" href="<?= esc(site_url('/'), 'attr') ?>#top">
-                <span class="brand-mark" aria-hidden="true"><i class="bi bi-compass"></i></span>
-                <span class="brand-text"><?= esc($L['brand']) ?></span>
+                <?php if ($brandLogo !== null): ?>
+                    <picture>
+                        <?php if ($brandLogo['webp'] !== null): ?>
+                            <source srcset="<?= esc(base_url($brandLogo['webp']), 'attr') ?>" type="image/webp">
+                        <?php endif; ?>
+                        <img class="brand-logo" src="<?= esc(base_url($brandLogo['png']), 'attr') ?>" alt="<?= esc($L['brand'], 'attr') ?>"
+                             width="<?= (int) $brandLogo['width'] ?>" height="<?= (int) $brandLogo['height'] ?>">
+                    </picture>
+                <?php else: ?>
+                    <span class="brand-mark" aria-hidden="true"><i class="bi bi-compass"></i></span>
+                    <span class="brand-text"><?= esc($L['brand']) ?></span>
+                <?php endif; ?>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#site-nav"
                     aria-controls="site-nav" aria-expanded="false" aria-label="<?= esc($L['toggle'], 'attr') ?>">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="site-nav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav ms-auto me-lg-2 mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="<?= esc($navBase . '#about', 'attr') ?>"><?= esc($L['about']) ?></a></li>
-                    <li class="nav-item"><a class="<?= $navClass('fleet') ?>"<?= $navCurrent('fleet') ?> href="<?= esc($navPageUrl('fleet'), 'attr') ?>"><?= esc($L['fleet']) ?></a></li>
-                    <li class="nav-item"><a class="<?= $navClass('gallery') ?>"<?= $navCurrent('gallery') ?> href="<?= esc($navPageUrl('gallery'), 'attr') ?>"><?= esc($L['gallery']) ?></a></li>
-                    <li class="nav-item"><a class="<?= $navClass('news') ?>"<?= $navCurrent('news') ?> href="<?= esc($navPageUrl('news'), 'attr') ?>"><?= esc($L['news']) ?></a></li>
+                    <li class="nav-item"><a class="<?= $navClass('fleet') ?>" href="<?= esc($navBase . '#fleet', 'attr') ?>"><?= esc($L['fleet']) ?></a></li>
+                    <li class="nav-item"><a class="<?= $navClass('gallery') ?>" href="<?= esc($navBase . '#gallery', 'attr') ?>"><?= esc($L['gallery']) ?></a></li>
+                    <li class="nav-item"><a class="<?= $navClass('news') ?>" href="<?= esc($navBase . '#news', 'attr') ?>"><?= esc($L['news']) ?></a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= esc($navBase . '#faq', 'attr') ?>"><?= esc($L['faq']) ?></a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= esc($navBase . '#contact', 'attr') ?>"><?= esc($L['contact']) ?></a></li>
                 </ul>

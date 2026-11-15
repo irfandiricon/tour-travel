@@ -170,10 +170,12 @@ final class ListingPagesTest extends CIUnitTestCase
     {
         $html = $this->d($this->landing($this->proxies(1, 1, 1)));
 
-        foreach (['fleet', 'gallery', 'news'] as $slug) {
-            $this->assertMatchesRegularExpression('#<a class="nav-link"[^>]*href="[^"]*/' . $slug . '"#', $html, $slug);
+        // On the landing page every menu item is an in-page anchor to its section.
+        foreach (['about', 'fleet', 'gallery', 'news', 'faq', 'contact'] as $section) {
+            $this->assertMatchesRegularExpression('#<a class="nav-link" href="\#' . $section . '">#', $html, $section);
+            $this->assertStringContainsString('<section id="' . $section . '"', $html, $section);
         }
-        $this->assertMatchesRegularExpression('#<a class="nav-link" href="\#about"#', $html);
+        $this->assertStringNotContainsString('aria-current="page" href', $html);
     }
 
     // ------------------------------------------------------------------- pages
@@ -204,8 +206,10 @@ final class ListingPagesTest extends CIUnitTestCase
     {
         $html = $this->d($this->page($kind, $this->proxies(1, 1, 1)));
 
-        $this->assertMatchesRegularExpression('#<a class="nav-link active" aria-current="page" href="[^"]*/' . $kind . '"#', $html);
-        $this->assertSame(1, substr_count($html, 'aria-current="page" href'));
+        // Highlighted, but it leads to the landing section, so it is not marked as the current page.
+        $this->assertMatchesRegularExpression('#<a class="nav-link active" href="https?://[^"]*/\#' . $kind . '">#', $html);
+        $this->assertSame(1, substr_count($html, 'class="nav-link active"'));
+        $this->assertStringNotContainsString('aria-current="page" href', $html);
     }
 
     /** @dataProvider pageProvider */
@@ -213,8 +217,8 @@ final class ListingPagesTest extends CIUnitTestCase
     {
         $html = $this->d($this->page($kind, $this->proxies(1, 1, 1)));
 
-        foreach (['about', 'faq', 'contact'] as $anchor) {
-            $this->assertMatchesRegularExpression('#<a class="nav-link" href="https?://[^"]*/\#' . $anchor . '"#', $html, $anchor);
+        foreach (['about', 'fleet', 'gallery', 'news', 'faq', 'contact'] as $anchor) {
+            $this->assertMatchesRegularExpression('#<a class="nav-link( active)?" href="https?://[^"]*/\#' . $anchor . '"#', $html, $anchor);
         }
         $this->assertStringContainsString('lang/en?return=' . $kind, $html);
     }
@@ -351,9 +355,9 @@ final class ListingPagesTest extends CIUnitTestCase
 
         $this->assertStringNotContainsString('id="information"', $html);
         $this->assertStringNotContainsString('info-card', $html);
-        $this->assertDoesNotMatchRegularExpression('#<a class="nav-link"[^>]*href="[^"]*/information"#', $html);
+        $this->assertDoesNotMatchRegularExpression('#<a class="nav-link"[^>]*href="[^"]*(/|\#)information"#', $html);
         // The single News & Information menu stays.
-        $this->assertMatchesRegularExpression('#<a class="nav-link"[^>]*href="[^"]*/news"[^>]*>News & Information</a>#', $html);
+        $this->assertMatchesRegularExpression('#<a class="nav-link"[^>]*href="[^"]*\#news"[^>]*>News & Information</a>#', $html);
     }
 
     public function testNewsAndInformationMenuIsLocalizedInEveryLanguage(): void
@@ -434,5 +438,41 @@ final class ListingPagesTest extends CIUnitTestCase
 
         service('request')->setGlobal('get', []);
         $this->assertSame(site_url('/'), $controller->set('id')->getHeaderLine('Location'));
+    }
+
+    public function testMobileMenuClosesAfterChoosingASection(): void
+    {
+        $js = (string) file_get_contents(FCPATH . 'assets/js/landing.js');
+
+        $this->assertStringContainsString("var menu = document.getElementById('site-nav');", $js);
+        $this->assertStringContainsString("window.bootstrap.Collapse.getOrCreateInstance(menu, { toggle: false }).hide();", $js);
+    }
+
+    public function testNavbarBrandIsTheLogoImage(): void
+    {
+        foreach ([$this->landing($this->proxies(1, 1, 1)), $this->page('news', $this->proxies(1, 1, 1))] as $html) {
+            $html = $this->d($html);
+            $this->assertMatchesRegularExpression('#<source srcset="https?://[^"]*/uploads/brand/kimigo-travel-logo\.webp" type="image/webp">#', $html);
+            $this->assertMatchesRegularExpression('#<img class="brand-logo" src="https?://[^"]*/uploads/brand/kimigo-travel-logo\.png" alt="Kimigo Travel"\s+width="468" height="96">#', $html);
+            $this->assertStringNotContainsString('class="brand-text"', $html, 'the image replaces the text brand');
+        }
+        $this->assertFileExists(FCPATH . 'uploads/brand/kimigo-travel-logo.png');
+        $this->assertSame([468, 96], array_slice(getimagesize(FCPATH . 'uploads/brand/kimigo-travel-logo.png'), 0, 2));
+    }
+
+    public function testEveryLandingSectionHasItsOwnBackground(): void
+    {
+        $html = $this->landing($this->proxies(1, 1, 1));
+        $css  = (string) file_get_contents(FCPATH . 'assets/css/landing.css');
+
+        $expected = ['about' => 'white', 'fleet' => 'sky', 'gallery' => 'sand', 'news' => 'mist', 'faq' => 'mint', 'contact' => 'sky-deep'];
+        foreach ($expected as $id => $bg) {
+            $this->assertMatchesRegularExpression('#<section id="' . $id . '" class="section[^"]* section--' . $bg . '"#', $html, $id);
+            $this->assertStringContainsString('.section--' . $bg . ' {', $css, $bg);
+        }
+        $this->assertStringContainsString('section--peach', (string) file_get_contents(APPPATH . 'Views/landing/index.php'), 'reviews (only shown when published)');
+        $this->assertSame(count($expected) + 1, count(array_unique(array_merge(array_values($expected), ['peach']))), 'no two sections share a background');
+        $this->assertStringContainsString('.section { padding: var(--space-section) 0; }', $css, 'top and bottom padding so each background has room');
+        $this->assertDoesNotMatchRegularExpression('/\.section--[a-z-]+ \{[^}]*#[0-9a-f]{3,6}/i', $css, 'colours come from tokens.css');
     }
 }

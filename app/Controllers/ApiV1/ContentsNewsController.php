@@ -2,6 +2,7 @@
 
 namespace App\Controllers\ApiV1;
 
+use App\Libraries\AdminSearch;
 use App\Libraries\ContentFilter;
 use App\Libraries\ContentValidator;
 use App\Libraries\ImageUploadHandler;
@@ -29,6 +30,9 @@ class ContentsNewsController extends ResourceController
     /** Where uploaded pictures are stored (relative to public/). */
     public const UPLOAD_DIR = 'uploads/news';
 
+    /** Columns the admin search looks in. */
+    public const SEARCH_COLUMNS = ['title_en', 'title_id', 'title_ms', 'body_en', 'body_id', 'body_ms', 'status'];
+
     protected NewsModel $newsModel;
 
     public function __construct()
@@ -37,11 +41,13 @@ class ContentsNewsController extends ResourceController
     }
 
     /**
-     * GET contents-news?page=&per_page= : all non-deleted news, publish date descending.
+     * GET contents-news?page=&per_page=&search= : all non-deleted news, publish date descending.
      */
     public function index(): ResponseInterface
     {
-        $rows = $this->newsModel->notDeleted()
+        $search = AdminSearch::term($this->request->getGet('search'));
+        AdminSearch::apply($this->newsModel->notDeleted(), $search, self::SEARCH_COLUMNS);
+        $rows = $this->newsModel
             ->orderBy('publish_date', 'DESC')
             ->orderBy('id', 'DESC')
             ->findAll();

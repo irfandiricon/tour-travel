@@ -4,14 +4,16 @@
  * @var bool       $imageRequired
  * @var bool       $removable     Show a "Remove current image" checkbox (name image_remove)
  * @var string     $hint          Optional help text under the input
+ * @var string     $label         Field label (defaults to the generic image label)
  */
 $imageRequired = $imageRequired ?? false;
 $removable     = $removable ?? false;
 $hint          = $hint ?? '';
+$label         = $label ?? 'Image (JPEG, PNG or WebP, max 5 MB)';
 $path          = $item['image_path'] ?? '';
 ?>
 <div class="form-row col-12">
-    <label for="image" class="form-label">Image (JPEG, PNG or WebP, max 5 MB)<?php if ($imageRequired && $path === ''): ?> <span class="req" aria-hidden="true">*</span><span class="sr-only">required</span><?php endif; ?></label>
+    <label for="image" class="form-label"><?= esc($label) ?><?php if ($imageRequired && $path === ''): ?> <span class="req" aria-hidden="true">*</span><span class="sr-only">required</span><?php endif; ?></label>
     <input type="file" id="image" name="image" class="form-control" accept="image/jpeg,image/png,image/webp"
         <?= ($imageRequired && $path === '') ? 'required aria-required="true"' : '' ?>
         aria-describedby="<?= $hint !== '' ? 'image-hint ' : '' ?>error-image">

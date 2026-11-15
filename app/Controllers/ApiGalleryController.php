@@ -45,6 +45,7 @@ class ApiGalleryController extends Controller
         $query = http_build_query([
             'per_page' => $this->request->getGet('per_page') ?? 10,
             'page'     => $this->request->getGet('page') ?? 1,
+            'search'   => is_string($this->request->getGet('search')) ? $this->request->getGet('search') : '',
         ]);
 
         return $this->response->setJSON($this->forward('GET', '?' . $query));

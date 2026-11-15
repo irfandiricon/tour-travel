@@ -2,6 +2,7 @@
 
 namespace App\Controllers\ApiV1;
 
+use App\Libraries\AdminSearch;
 use App\Filters\AdminAuthFilter;
 use App\Libraries\AdminUserValidator;
 use App\Models\AdminUserModel;
@@ -18,6 +19,9 @@ class AdminUsersController extends Controller
 
     protected $adminUserModel;
 
+    /** Columns the admin search looks in (never the password hash). */
+    public const SEARCH_COLUMNS = ['username', 'status'];
+
     public function __construct()
     {
         $this->adminUserModel = new AdminUserModel();
@@ -30,8 +34,9 @@ class AdminUsersController extends Controller
         $page    = max(1, (int) ($this->request->getGet('page') ?: 1));
         $selfId  = $this->currentUserId();
 
-        $total = (new AdminUserModel())->countAllResults();
-        $rows  = (new AdminUserModel())->orderBy('id', 'DESC')->findAll($perPage, ($page - 1) * $perPage);
+        $search = AdminSearch::term($this->request->getGet('search'));
+        $total  = AdminSearch::apply(new AdminUserModel(), $search, self::SEARCH_COLUMNS)->countAllResults();
+        $rows   = AdminSearch::apply(new AdminUserModel(), $search, self::SEARCH_COLUMNS)->orderBy('id', 'DESC')->findAll($perPage, ($page - 1) * $perPage);
 
         $data = array_map(fn (array $row): array => $this->present($row, $selfId), $rows);
 

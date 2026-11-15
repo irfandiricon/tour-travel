@@ -280,9 +280,22 @@ main button:disabled { opacity: .6; cursor: not-allowed; }
 .alert { padding: .75rem 1rem; border-radius: var(--r-md); }
 #form-summary.alert-danger { color: var(--ad-danger); background: var(--c-surface); border: 1px solid var(--ad-danger); }
 
-/* Pager */
-.pager { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-top: 1rem; color: var(--c-muted); }
-.pager[hidden] { display: none; }
+/* Data table: rows per page, "Showing x to y of z entries", page numbers */
+.dt-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .75rem; }
+.dt-length { display: inline-flex; align-items: center; gap: .5rem; margin: 0; color: var(--c-muted); font-size: var(--fs-small); }
+.dt-length .form-select { width: auto; min-width: 4.5rem; }
+.dt-search { display: inline-flex; align-items: center; gap: .5rem; }
+.dt-search__label { margin: 0; color: var(--c-muted); font-size: var(--fs-small); }
+.dt-search .form-control { width: 14rem; max-width: 60vw; }
+@media (max-width: 575.98px) { .dt-search, .dt-search .form-control { width: 100%; max-width: none; } }.dt-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .85rem; }
+.dt-info { margin: 0; color: var(--c-muted); font-size: var(--fs-small); }
+.dt-pager[hidden] { display: none; }
+.dt-pager .pagination { --bs-pagination-active-bg: var(--ad-primary); --bs-pagination-active-border-color: var(--ad-primary); --bs-pagination-color: var(--ad-primary); --bs-pagination-focus-box-shadow: 0 0 0 .2rem rgba(31, 95, 208, .35); }
+.dt-pager .page-link { min-width: 2.1rem; text-align: center; }
+@media (max-width: 575.98px) { .dt-search { display: inline-flex; align-items: center; gap: .5rem; }
+.dt-search__label { margin: 0; color: var(--c-muted); font-size: var(--fs-small); }
+.dt-search .form-control { width: 14rem; max-width: 60vw; }
+@media (max-width: 575.98px) { .dt-search, .dt-search .form-control { width: 100%; max-width: none; } }.dt-footer { flex-direction: column; align-items: flex-start; } }
 
 /* ------------------------------------------------------------ Toasts */
 .toast-region { z-index: 1100; }
@@ -311,3 +324,15 @@ body.admin-body:has(.admin-auth--bleed) { padding: 0; background: var(--c-surfac
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- Rating bintang (form Customer Reviews) ---------- */
+.star-input { display: inline-flex; gap: .25rem; font-size: 1.85rem; line-height: 1; }
+.star-input label { margin: 0; padding: .1rem; color: #d0d5dd; cursor: pointer; border-radius: 6px; transition: color .15s ease, transform .15s ease; }
+.star-input label:hover { transform: scale(1.12); }
+.star-input input:focus-visible + label { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.star-input:has(input[value="1"]:checked) label:nth-of-type(-n+1),
+.star-input:has(input[value="2"]:checked) label:nth-of-type(-n+2),
+.star-input:has(input[value="3"]:checked) label:nth-of-type(-n+3),
+.star-input:has(input[value="4"]:checked) label:nth-of-type(-n+4),
+.star-input:has(input[value="5"]:checked) label:nth-of-type(-n+5) { color: #f59e0b; }
+@media (prefers-reduced-motion: reduce) { .star-input label { transition: none; } .star-input label:hover { transform: none; } }

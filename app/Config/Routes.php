@@ -33,6 +33,7 @@ $routes->group('', ['filter' => 'admin', 'namespace' => 'App\Controllers\Admin']
         'fleet'       => 'FleetController',
         'faq'         => 'FaqController',
         'gallery'     => 'GalleryController',
+        'testimonials' => 'TestimonialController',
         'users'       => 'UserController',
     ];
 
@@ -53,6 +54,7 @@ $routes->group('admin/api', ['filter' => 'admin', 'namespace' => 'App\Controller
         'fleet'       => ['ApiFleetController', ['activate', 'deactivate']],
         'faq'         => ['ApiFaqController', []],
         'gallery'     => ['ApiGalleryController', []],
+        'testimonials' => ['ApiTestimonialController', []],
         'users'       => ['ApiUserController', []],
     ];
 
@@ -82,6 +84,7 @@ $routes->group('api/v1', ['namespace' => 'App\Controllers\ApiV1'], static functi
         'contents-fleet'       => ['ContentsFleetController', true, true],
         'contents-faqs'        => ['ContentsFaqsController', false, false],
         'contents-gallery'     => ['ContentsGalleryController', false, true],
+        'contents-testimonials' => ['ContentsTestimonialsController', false, true],
     ];
 
     foreach ($resources as $path => [$controller, $toggles, $multipartUpdate]) {
