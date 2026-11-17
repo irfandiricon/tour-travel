@@ -28,6 +28,40 @@ if (trim((string) ($brand ?? '')) !== '') {
 }
 $langNames  = ['en' => 'English', 'id' => 'Indonesia', 'ms' => 'Melayu'];
 
+// Booking form opened by the fleet "Book via WhatsApp" buttons (see landing.js initBookingForm).
+// `msg` builds the WhatsApp text; {brand} and {fleet} are filled in by the script.
+$bookingLabels = [
+    'en' => [
+        'eyebrow' => 'Booking form', 'name' => 'Customer name', 'namePh' => 'e.g. John Smith', 'date' => 'Travel date',
+        'pax' => 'Number of passengers', 'paxPh' => 'e.g. 4', 'pickup' => 'Pickup location', 'pickupPh' => 'e.g. Hang Nadim Airport / Marriott Hotel',
+        'priceFrom' => 'Price starting from', 'priceNote' => 'The final price is confirmed on WhatsApp.', 'submit' => 'Book via WhatsApp',
+        'hint' => 'WhatsApp opens with your booking details filled in.', 'close' => 'Close', 'required' => 'required',
+        'errRequired' => 'Please fill in this field.', 'errPax' => 'Enter a whole number from 1 to 60.', 'errDate' => 'Choose today or a later date.',
+        'msg' => ['intro' => 'Hello {brand}, I would like to book the {fleet}:', 'name' => 'Name', 'date' => 'Travel date', 'pax' => 'Passengers',
+                  'paxUnit' => 'people', 'pickup' => 'Pickup location', 'price' => 'Price starting from', 'outro' => 'Please confirm the vehicle availability. Thank you!'],
+        'months' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    ],
+    'id' => [
+        'eyebrow' => 'Form pemesanan', 'name' => 'Nama Pemesan', 'namePh' => 'Contoh: Budi Santoso', 'date' => 'Tanggal Perjalanan',
+        'pax' => 'Jumlah Penumpang', 'paxPh' => 'Contoh: 4', 'pickup' => 'Lokasi Penjemputan', 'pickupPh' => 'Contoh: Bandara Hang Nadim / Hotel Marriott',
+        'priceFrom' => 'Harga dimulai dari', 'priceNote' => 'Harga akhir dikonfirmasi lewat WhatsApp.', 'submit' => 'Pesan via WhatsApp',
+        'hint' => 'WhatsApp akan terbuka dengan detail pesanan Anda.', 'close' => 'Tutup', 'required' => 'wajib',
+        'errRequired' => 'Wajib diisi.', 'errPax' => 'Masukkan angka bulat 1 sampai 60.', 'errDate' => 'Pilih hari ini atau tanggal setelahnya.',
+        'msg' => ['intro' => 'Halo {brand}, saya mau booking unit {fleet}:', 'name' => 'Nama', 'date' => 'Tanggal Perjalanan', 'pax' => 'Jumlah Penumpang',
+                  'paxUnit' => 'orang', 'pickup' => 'Lokasi Penjemputan', 'price' => 'Harga dimulai dari', 'outro' => 'Mohon konfirmasi ketersediaan unit. Terima kasih!'],
+        'months' => ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+    ],
+    'ms' => [
+        'eyebrow' => 'Borang tempahan', 'name' => 'Nama Penempah', 'namePh' => 'Contoh: Ahmad Faiz', 'date' => 'Tarikh Perjalanan',
+        'pax' => 'Bilangan Penumpang', 'paxPh' => 'Contoh: 4', 'pickup' => 'Lokasi Ambilan', 'pickupPh' => 'Contoh: Lapangan Terbang Hang Nadim / Hotel Marriott',
+        'priceFrom' => 'Harga bermula dari', 'priceNote' => 'Harga akhir disahkan melalui WhatsApp.', 'submit' => 'Tempah melalui WhatsApp',
+        'hint' => 'WhatsApp akan dibuka dengan butiran tempahan anda.', 'close' => 'Tutup', 'required' => 'wajib',
+        'errRequired' => 'Sila isi ruangan ini.', 'errPax' => 'Masukkan nombor bulat 1 hingga 60.', 'errDate' => 'Pilih hari ini atau tarikh selepasnya.',
+        'msg' => ['intro' => 'Hai {brand}, saya ingin menempah {fleet}:', 'name' => 'Nama', 'date' => 'Tarikh Perjalanan', 'pax' => 'Bilangan Penumpang',
+                  'paxUnit' => 'orang', 'pickup' => 'Lokasi Ambilan', 'price' => 'Harga bermula dari', 'outro' => 'Mohon sahkan ketersediaan kenderaan. Terima kasih!'],
+        'months' => ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'],
+    ],
+];
 // Navbar logo: trimmed 468x96 copy of uploads/brand/Kimigo Travel Logo with Bridge and Airplane.png
 // (WebP with a PNG fallback). Without the file the icon + brand name are shown instead.
 $brandLogo = null;
@@ -158,6 +192,58 @@ $floatingWa    = is_string($floatingWa) && trim($floatingWa) !== '' ? $floatingW
         </div>
     </div>
 </div>
+
+<?php if ($floatingWa !== null): // booking buttons only exist when a WhatsApp number is set ?>
+<?php $B = $bookingLabels[$layoutLang] ?? $bookingLabels['en']; $req = '<span class="req" aria-hidden="true">*</span><span class="visually-hidden"> (' . esc($B['required']) . ')</span>'; ?>
+<div class="modal fade booking-modal" id="booking-modal" tabindex="-1" aria-labelledby="booking-fleet" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <form class="modal-content booking-form" data-booking-form novalidate autocomplete="on">
+            <div class="modal-header">
+                <div>
+                    <p class="booking-eyebrow"><?= esc($B['eyebrow']) ?></p>
+                    <h2 class="modal-title h5" id="booking-fleet" data-booking-fleet></h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= esc($B['close'], 'attr') ?>"></button>
+            </div>
+            <div class="modal-body">
+                <div class="booking-field">
+                    <label for="booking-name" class="booking-label"><?= esc($B['name']) ?> <?= $req ?></label>
+                    <input type="text" class="form-control" id="booking-name" name="name" maxlength="100" autocomplete="name" required
+                           placeholder="<?= esc($B['namePh'], 'attr') ?>" aria-describedby="booking-name-error">
+                    <div class="invalid-feedback" id="booking-name-error"></div>
+                </div>
+                <div class="booking-field">
+                    <label for="booking-date" class="booking-label"><?= esc($B['date']) ?> <?= $req ?></label>
+                    <input type="date" class="form-control" id="booking-date" name="date" required aria-describedby="booking-date-error">
+                    <div class="invalid-feedback" id="booking-date-error"></div>
+                </div>
+                <div class="booking-field">
+                    <label for="booking-pax" class="booking-label"><?= esc($B['pax']) ?> <?= $req ?></label>
+                    <input type="number" class="form-control" id="booking-pax" name="pax" min="1" max="60" step="1" inputmode="numeric" required
+                           placeholder="<?= esc($B['paxPh'], 'attr') ?>" aria-describedby="booking-pax-error">
+                    <div class="invalid-feedback" id="booking-pax-error"></div>
+                </div>
+                <div class="booking-field">
+                    <label for="booking-pickup" class="booking-label"><?= esc($B['pickup']) ?> <?= $req ?></label>
+                    <input type="text" class="form-control" id="booking-pickup" name="pickup" maxlength="150" autocomplete="street-address" required
+                           placeholder="<?= esc($B['pickupPh'], 'attr') ?>" aria-describedby="booking-pickup-error">
+                    <div class="invalid-feedback" id="booking-pickup-error"></div>
+                </div>
+                <div class="booking-price" data-booking-price-box hidden>
+                    <span class="booking-price__label"><?= esc($B['priceFrom']) ?></span>
+                    <strong class="booking-price__value" data-booking-price></strong>
+                    <small class="booking-price__note"><?= esc($B['priceNote']) ?></small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-wa btn-success booking-submit w-100"><i class="bi bi-whatsapp" aria-hidden="true"></i> <?= esc($B['submit']) ?></button>
+                <p class="booking-hint"><?= esc($B['hint']) ?></p>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="application/json" id="booking-i18n"><?= json_encode(['brand' => $L['brand']] + $B, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?></script>
+<?php endif; ?>
 
 <script src="<?= esc(base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js'), 'attr') ?>"></script>
 <script src="<?= esc(base_url('assets/js/landing.js'), 'attr') ?>" defer></script>

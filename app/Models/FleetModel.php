@@ -10,7 +10,7 @@ class FleetModel extends BaseContentModel
     protected $allowedFields = [
         'name_en', 'name_id', 'name_ms',
         'description_en', 'description_id', 'description_ms',
-        'image_path',
+        'price_from', 'image_path',
         'status', 'created_at', 'updated_at', 'deleted_at',
     ];
 }

@@ -26,7 +26,7 @@ class ApiFleetController extends Controller
     private const TEXT_FIELDS = [
         'name_en', 'name_id', 'name_ms',
         'description_en', 'description_id', 'description_ms',
-        'status',
+        'price_from', 'status',
     ];
 
     public function __construct()

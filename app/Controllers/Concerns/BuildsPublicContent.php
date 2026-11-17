@@ -4,6 +4,7 @@ namespace App\Controllers\Concerns;
 
 use App\Libraries\ContentFilter;
 use App\Libraries\LanguageResolver;
+use App\Libraries\PriceFormatter;
 use App\Libraries\WhatsAppLinkBuilder;
 use Throwable;
 
@@ -64,6 +65,9 @@ trait BuildsPublicContent
                 'name'        => $name,
                 'description' => LanguageResolver::resolve($this->translations($row, 'description'), $this->lang),
                 'image'       => $images[$i] ?? self::FLEET_PLACEHOLDER,
+                // "Price starting from" in rupiah; '' when not set (the price line is then hidden).
+                'priceText'   => PriceFormatter::format($row['price_from'] ?? null),
+                // Without JavaScript this link opens WhatsApp directly; with it, the booking form opens first.
                 'whatsapp'    => WhatsAppLinkBuilder::build($waNum, mb_substr($this->bookingText($name), 0, 200)),
             ];
         }

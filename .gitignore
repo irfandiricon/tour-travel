@@ -93,6 +93,8 @@ php_errors.log
 
 # Modules Testing
 _modules/*
+docs
+tests
 
 # phpenv local config
 .php-version

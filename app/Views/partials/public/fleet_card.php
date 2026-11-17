@@ -3,7 +3,7 @@
  * One fleet card.
  *
  * @var array    $item
- * @var array    $t           labels (book, readyToBook, imageAlt)
+ * @var array    $t           labels (book, readyToBook, imageAlt, priceFrom)
  * @var callable $imgUrl
  * @var string   $placeholder
  * @var string   $trackUrl
@@ -14,6 +14,7 @@ $fleetWa   = $item['whatsapp'] ?? null;
 // The placeholder picture is not worth enlarging.
 $zoomable  = $img !== '' && ! str_ends_with($img, 'fleet-placeholder.svg');
 $zoomLabel = (string) ($t['zoomImage'] ?? 'View larger image');
+$priceText = trim((string) ($item['priceText'] ?? ''));
 ?>
 <article class="fleet-card">
     <div class="fleet-card__media">
@@ -36,11 +37,18 @@ $zoomLabel = (string) ($t['zoomImage'] ?? 'View larger image');
         <?php if (trim((string) ($item['description'] ?? '')) !== ''): ?>
             <p class="fleet-card__text"><?= esc((string) $item['description']) ?></p>
         <?php endif; ?>
+        <?php if ($priceText !== ''): ?>
+            <p class="fleet-card__price">
+                <span class="fleet-card__price-label"><?= esc((string) ($t['priceFrom'] ?? 'Starting from')) ?></span>
+                <span class="fleet-card__price-value"><?= esc($priceText) ?></span>
+            </p>
+        <?php endif; ?>
         <?php if ($fleetWa !== null): ?>
             <a class="btn btn-wa btn-success mt-auto" href="<?= esc($fleetWa, 'attr') ?>" target="_blank" rel="noopener"
                data-track-booking="<?= esc($trackUrl, 'attr') ?>"
                data-fleet-id="<?= esc((string) ($item['id'] ?? ''), 'attr') ?>"
-               data-fleet-name="<?= esc($fleetName, 'attr') ?>"><i class="bi bi-whatsapp" aria-hidden="true"></i> <?= esc($t['book']) ?></a>
+               data-fleet-name="<?= esc($fleetName, 'attr') ?>"
+               data-booking-open data-fleet-price="<?= esc($priceText, 'attr') ?>" aria-haspopup="dialog"><i class="bi bi-whatsapp" aria-hidden="true"></i> <?= esc($t['book']) ?></a>
         <?php endif; ?>
     </div>
 </article>

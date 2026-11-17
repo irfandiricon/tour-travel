@@ -492,10 +492,43 @@
 
         load();
     }
+    /* ------------------------------------------------ Currency input */
+
+    /** Digits -> "Rp 1.100.000" (whole rupiah, max 9 digits); '' when there are no digits. */
+    function formatIdr(value) {
+        var digits = String(value || '').replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 9);
+        return digits === '' ? '' : 'Rp ' + digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    /**
+     * Inputs with [data-currency="idr"] are shown as currency while typing. The caret stays after
+     * the same digit, so editing in the middle works. The server accepts this format (PriceFormatter).
+     */
+    function initCurrency() {
+        document.querySelectorAll('input[data-currency="idr"]').forEach(function (input) {
+            function reformat() {
+                var caret = input.selectionStart === null ? input.value.length : input.selectionStart;
+                var digitsBefore = input.value.slice(0, caret).replace(/\D/g, '').length;
+                var formatted = formatIdr(input.value);
+                if (formatted === input.value) { return; }
+                input.value = formatted;
+                if (document.activeElement !== input || !input.setSelectionRange) { return; }
+                var pos = formatted.indexOf(' ') + 1; // after "Rp "
+                for (var seen = 0; pos < formatted.length && seen < digitsBefore; pos++) {
+                    if (/\d/.test(formatted.charAt(pos))) { seen++; }
+                }
+                input.setSelectionRange(pos, pos);
+            }
+            input.addEventListener('input', reformat);
+            reformat();
+        });
+    }
+
     /* ------------------------------------------------------------ Boot */
 
     function boot() {
         initTabs();
+        initCurrency();
         document.querySelectorAll('[data-admin-form]').forEach(initForm);
         document.querySelectorAll('[data-admin-list]').forEach(initList);
     }

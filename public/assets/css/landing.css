@@ -630,3 +630,37 @@ a.news-card__link:hover .news-card__more i { transform: translateX(4px); }
 .carousel-toggle:hover { background: var(--lp-lime); }
 .carousel-toggle:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .carousel-toggle[hidden] { display: none; }
+
+/* ---------- Harga armada + form booking (modal) ---------- */
+.fleet-card__price { display: flex; flex-direction: column; gap: .1rem; margin: .25rem 0 .5rem; }
+.fleet-card__price-label { font-size: var(--fs-small); color: var(--c-muted); }
+.fleet-card__price-value { font-size: 1.25rem; font-weight: 800; letter-spacing: -.01em; color: var(--lp-navy); }
+
+.booking-modal .modal-content { border: 0; border-radius: var(--r-xl); box-shadow: var(--sh-lg); }
+.booking-modal .modal-header { align-items: flex-start; padding: 1.25rem 1.5rem .75rem; border-bottom: 1px solid var(--c-border); }
+.booking-modal .modal-title { margin: 0; font-weight: 800; color: var(--lp-navy); }
+.booking-modal .modal-body { display: grid; gap: 1rem; padding: 1.25rem 1.5rem; }
+/* Bootstrap's .modal-footer is a right-aligned flex row; stack and center the button and the hint instead. */
+.booking-modal .modal-footer {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .5rem; padding: 0 1.5rem 1.5rem; border-top: 0;
+}
+.booking-modal .modal-footer > * { margin: 0; }
+.booking-eyebrow { margin: 0 0 .15rem; font-size: var(--fs-small); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--c-muted); }
+.booking-field { display: grid; gap: .4rem; }
+.booking-label { margin: 0; font-size: .85rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--c-ink); }
+.booking-label .req { color: var(--lp-orange-deep); }
+.booking-form .form-control { min-height: 3rem; border-radius: var(--r-md); border-color: var(--c-border); font-size: 1rem; }
+.booking-form .form-control:focus { border-color: var(--focus-ring); box-shadow: 0 0 0 .2rem rgba(31, 95, 208, .2); }
+.booking-form .form-control.is-invalid { border-color: var(--ad-danger); }
+.booking-form .invalid-feedback { color: var(--ad-danger); font-weight: 600; }
+.booking-price {
+  display: grid; gap: .25rem; padding: 1.1rem 1.25rem;
+  background: var(--c-ink); color: var(--c-surface-2); border-radius: var(--r-lg);
+}
+.booking-price[hidden] { display: none; }
+.booking-price__label { font-size: var(--fs-small); }
+.booking-price__value { font-size: 1.75rem; font-weight: 800; line-height: 1.1; color: var(--lp-lime); }
+.booking-price__note { color: var(--c-surface-2); opacity: .85; }
+.booking-submit { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 3.25rem; font-size: 1.1rem; font-weight: 700; }
+.booking-hint { width: 100%; margin: 0; text-align: center; font-size: var(--fs-small); color: var(--c-muted); }

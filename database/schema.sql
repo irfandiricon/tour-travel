@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS `c_fleet` (
   `description_en` TEXT NULL,
   `description_id` TEXT NULL,
   `description_ms` TEXT NULL,
+  `price_from`     INT UNSIGNED NULL,
   `image_path`     VARCHAR(500) NULL,
   `status`         ENUM('draft','published','deleted') NOT NULL DEFAULT 'draft',
   `created_at`     DATETIME NULL,

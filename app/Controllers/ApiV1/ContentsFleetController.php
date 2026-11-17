@@ -7,6 +7,7 @@ use App\Libraries\ContentFilter;
 use App\Libraries\ContentValidator;
 use App\Libraries\ImageUploadHandler;
 use App\Libraries\Paginator;
+use App\Libraries\PriceFormatter;
 use App\Models\FleetModel;
 use CodeIgniter\HTTP\Files\UploadedFile;
 use CodeIgniter\RESTful\ResourceController;
@@ -52,6 +53,12 @@ class ContentsFleetController extends ResourceController
             $this->request->getGet('per_page')
         );
 
+        // Display-only column for the admin list.
+        foreach ($page['data'] as &$row) {
+            $row['price_label'] = PriceFormatter::format($row['price_from'] ?? null) ?: '-';
+        }
+        unset($row);
+
         return $this->respond([
             'status'   => 200,
             'message'  => 'OK',
@@ -91,7 +98,7 @@ class ContentsFleetController extends ResourceController
     {
         $input  = $this->input();
         $errors = ContentValidator::validateRequiredEn($input, ['name']);
-        $errors = array_merge($errors, $this->lengthErrors($input));
+        $errors = array_merge($errors, $this->lengthErrors($input), $this->priceErrors($input));
 
         $file = $this->uploadedFile();
         if ($file !== null) {
@@ -137,7 +144,7 @@ class ContentsFleetController extends ResourceController
         // Partial update: validate only fields that were submitted, merged over stored values.
         $merged = array_merge($existing, $input);
         $errors = ContentValidator::validateRequiredEn($merged, ['name']);
-        $errors = array_merge($errors, $this->lengthErrors($input));
+        $errors = array_merge($errors, $this->lengthErrors($input), $this->priceErrors($input));
 
         $file = $this->uploadedFile();
         if ($file !== null) {
@@ -298,8 +305,25 @@ class ContentsFleetController extends ResourceController
                 $out[$f] = is_scalar($input[$f]) ? trim((string) $input[$f]) : '';
             }
         }
+        // Only when sent; an empty value clears the price.
+        if (array_key_exists('price_from', $input)) {
+            $out['price_from'] = PriceFormatter::parse($input['price_from'])['value'];
+        }
 
         return $out;
+    }
+
+    /**
+     * @param array<string,mixed> $input
+     * @return array<string,string>
+     */
+    private function priceErrors(array $input): array
+    {
+        if (! array_key_exists('price_from', $input) || PriceFormatter::parse($input['price_from'])['ok']) {
+            return [];
+        }
+
+        return ['price_from' => 'Price must be a whole rupiah amount, e.g. 1100000 or 1.100.000 (max 999.999.999).'];
     }
 
     /**

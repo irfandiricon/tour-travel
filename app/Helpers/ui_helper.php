@@ -178,7 +178,7 @@ if (! function_exists('ui_page_labels')) {
             'en' => [
                 'brand' => 'Kimigo Travel', 'home' => 'Home', 'backHome' => 'Back to home',
                 'prev' => 'Previous', 'next' => 'Next', 'pagination' => 'Pagination', 'pageOf' => 'Page {n} of {m}', 'breadcrumb' => 'Breadcrumb',
-                'book' => 'Book via WhatsApp', 'readyToBook' => 'Ready to book', 'imageAlt' => 'Vehicle image', 'zoomImage' => 'View larger image',
+                'book' => 'Book via WhatsApp', 'readyToBook' => 'Ready to book', 'priceFrom' => 'Starting from', 'imageAlt' => 'Vehicle image', 'zoomImage' => 'View larger image',
                 'readMore' => 'Read more', 'backNews' => 'Back to News & Information', 'otherNews' => 'More news & information', 'published' => 'Published',
                 'pages' => [
                     'fleet'       => ['title' => 'Our Fleet', 'sub' => 'Pick the ride that fits your trip',
@@ -195,7 +195,7 @@ if (! function_exists('ui_page_labels')) {
             'id' => [
                 'brand' => 'Kimigo Travel', 'home' => 'Beranda', 'backHome' => 'Kembali ke beranda',
                 'prev' => 'Sebelumnya', 'next' => 'Berikutnya', 'pagination' => 'Navigasi halaman', 'pageOf' => 'Halaman {n} dari {m}', 'breadcrumb' => 'Jejak halaman',
-                'book' => 'Pesan via WhatsApp', 'readyToBook' => 'Siap dipesan', 'imageAlt' => 'Gambar kendaraan', 'zoomImage' => 'Perbesar gambar',
+                'book' => 'Pesan via WhatsApp', 'readyToBook' => 'Siap dipesan', 'priceFrom' => 'Harga dimulai dari', 'imageAlt' => 'Gambar kendaraan', 'zoomImage' => 'Perbesar gambar',
                 'readMore' => 'Baca selengkapnya', 'backNews' => 'Kembali ke Berita & Informasi', 'otherNews' => 'Berita & informasi lainnya', 'published' => 'Diterbitkan',
                 'pages' => [
                     'fleet'       => ['title' => 'Armada Kami', 'sub' => 'Pilih kendaraan yang pas untuk perjalananmu',
@@ -212,7 +212,7 @@ if (! function_exists('ui_page_labels')) {
             'ms' => [
                 'brand' => 'Kimigo Travel', 'home' => 'Laman Utama', 'backHome' => 'Kembali ke laman utama',
                 'prev' => 'Sebelumnya', 'next' => 'Seterusnya', 'pagination' => 'Navigasi halaman', 'pageOf' => 'Halaman {n} daripada {m}', 'breadcrumb' => 'Jejak laluan',
-                'book' => 'Tempah melalui WhatsApp', 'readyToBook' => 'Sedia ditempah', 'imageAlt' => 'Gambar kenderaan', 'zoomImage' => 'Besarkan imej',
+                'book' => 'Tempah melalui WhatsApp', 'readyToBook' => 'Sedia ditempah', 'priceFrom' => 'Harga bermula dari', 'imageAlt' => 'Gambar kenderaan', 'zoomImage' => 'Besarkan imej',
                 'readMore' => 'Baca lagi', 'backNews' => 'Kembali ke Berita & Maklumat', 'otherNews' => 'Berita & maklumat lain', 'published' => 'Diterbitkan',
                 'pages' => [
                     'fleet'       => ['title' => 'Armada Kami', 'sub' => 'Pilih kenderaan yang sesuai untuk perjalanan anda',

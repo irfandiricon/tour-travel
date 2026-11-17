@@ -118,10 +118,17 @@
     }
   }
 
+  // The booking form sends the click when it is submitted (see initBookingForm).
+  window.kimigoSendBookingClick = sendBookingClick;
+
   document.addEventListener('click', function (e) {
     var target = e.target;
     var link = target && target.closest ? target.closest('[data-track-booking]') : null;
     if (!link) {
+      return;
+    }
+    // Handled by the booking form instead: count the booking only once the form is sent.
+    if (link.hasAttribute('data-booking-open') && window.kimigoBookingReady) {
       return;
     }
     var url = link.getAttribute('data-track-booking');
@@ -368,5 +375,143 @@
       return;
     }
     window.bootstrap.Collapse.getOrCreateInstance(menu, { toggle: false }).hide();
+  });
+})();
+
+// Booking form: a fleet "Book via WhatsApp" button ([data-booking-open], a wa.me link) opens
+// #booking-modal instead of WhatsApp. After the form is valid, WhatsApp opens with the details
+// as the message. Without JavaScript (or Bootstrap) the link still opens WhatsApp directly.
+(function initBookingForm() {
+  'use strict';
+
+  var modalEl = document.getElementById('booking-modal');
+  var cfgEl = document.getElementById('booking-i18n');
+  if (!modalEl || !cfgEl || !window.bootstrap || !window.bootstrap.Modal) {
+    return;
+  }
+  var cfg;
+  try {
+    cfg = JSON.parse(cfgEl.textContent || '{}');
+  } catch (e) {
+    return;
+  }
+
+  var form = modalEl.querySelector('[data-booking-form]');
+  var fleetEl = modalEl.querySelector('[data-booking-fleet]');
+  var priceBox = modalEl.querySelector('[data-booking-price-box]');
+  var priceEl = modalEl.querySelector('[data-booking-price]');
+  var fields = {
+    name: form.querySelector('[name="name"]'),
+    date: form.querySelector('[name="date"]'),
+    pax: form.querySelector('[name="pax"]'),
+    pickup: form.querySelector('[name="pickup"]')
+  };
+  var modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+  var current = null; // { base, fleet, price, trackUrl, fleetId }
+  window.kimigoBookingReady = true;
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  /** "2026-11-17" -> "17 November 2026" in the page language. */
+  function longDate(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    var months = cfg.months || [];
+    return m && months[+m[2] - 1] ? pad(+m[3]) + ' ' + months[+m[2] - 1] + ' ' + m[1] : iso;
+  }
+  function clean(v) { return String(v || '').replace(/\s+/g, ' ').trim(); }
+
+  function setError(input, message) {
+    var slot = document.getElementById(input.id + '-error');
+    input.classList.toggle('is-invalid', !!message);
+    input.setAttribute('aria-invalid', message ? 'true' : 'false');
+    if (slot) { slot.textContent = message || ''; }
+  }
+
+  function validate() {
+    var errors = {};
+    if (!clean(fields.name.value)) { errors.name = cfg.errRequired; }
+    var date = fields.date.value;
+    if (!date) { errors.date = cfg.errRequired; } else if (date < today()) { errors.date = cfg.errDate; }
+    var pax = fields.pax.value.trim();
+    if (!pax) { errors.pax = cfg.errRequired; } else if (!/^\d+$/.test(pax) || +pax < 1 || +pax > 60) { errors.pax = cfg.errPax; }
+    if (!clean(fields.pickup.value)) { errors.pickup = cfg.errRequired; }
+
+    var first = null;
+    Object.keys(fields).forEach(function (k) {
+      setError(fields[k], errors[k] || '');
+      if (errors[k] && !first) { first = fields[k]; }
+    });
+    if (first) { first.focus(); }
+    return !first;
+  }
+
+  /** WhatsApp text; *...* is bold in WhatsApp. */
+  function message() {
+    var m = cfg.msg || {};
+    var lines = [
+      String(m.intro || '').replace('{brand}', cfg.brand || '').replace('{fleet}', current.fleet),
+      '*' + m.name + ':* ' + clean(fields.name.value),
+      '*' + m.date + ':* ' + longDate(fields.date.value),
+      '*' + m.pax + ':* ' + (+fields.pax.value) + (m.paxUnit ? ' ' + m.paxUnit : ''),
+      '*' + m.pickup + ':* ' + clean(fields.pickup.value)
+    ];
+    if (current.price) { lines.push('*' + m.price + ':* ' + current.price); }
+    lines.push('', m.outro || '');
+    return lines.join('\n');
+  }
+
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest ? e.target.closest('[data-booking-open]') : null;
+    if (!link) {
+      return;
+    }
+    var href = link.getAttribute('href') || '';
+    if (href.indexOf('https://wa.me/') !== 0) {
+      return; // not a WhatsApp link: leave it alone
+    }
+    e.preventDefault();
+    current = {
+      base: href.split('?')[0],
+      fleet: link.getAttribute('data-fleet-name') || '',
+      price: link.getAttribute('data-fleet-price') || '',
+      trackUrl: link.getAttribute('data-track-booking') || '',
+      fleetId: link.getAttribute('data-fleet-id') || ''
+    };
+    fleetEl.textContent = current.fleet;
+    priceEl.textContent = current.price;
+    priceBox.hidden = !current.price;
+    Object.keys(fields).forEach(function (k) { setError(fields[k], ''); });
+    fields.date.min = today();
+    if (!fields.date.value || fields.date.value < fields.date.min) { fields.date.value = fields.date.min; }
+    modal.show(link);
+  });
+
+  modalEl.addEventListener('shown.bs.modal', function () { fields.name.focus(); });
+
+  Object.keys(fields).forEach(function (k) {
+    fields[k].addEventListener('input', function () {
+      if (fields[k].classList.contains('is-invalid')) { setError(fields[k], ''); }
+    });
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!current || !validate()) {
+      return;
+    }
+    var url = current.base + '?text=' + encodeURIComponent(message());
+    if (current.trackUrl && current.fleetId && window.kimigoSendBookingClick) {
+      window.kimigoSendBookingClick(current.trackUrl, current.fleetId, current.fleet);
+    }
+    var win = window.open(url, '_blank');
+    if (win) {
+      win.opener = null;
+    } else {
+      window.location.href = url; // pop-up blocked
+    }
+    modal.hide();
   });
 })();
