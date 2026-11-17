@@ -132,7 +132,8 @@ class ApiNewsController extends Controller
 
     private function payload(): array
     {
-        $json = $this->request->getJSON(true);
+        // getJSON() throws on a non-JSON body (the admin forms post FormData), so only parse JSON requests.
+        $json = str_contains(strtolower($this->request->getHeaderLine('Content-Type')), 'json') ? $this->request->getJSON(true) : null;
 
         return is_array($json) ? $json : (array) $this->request->getPost();
     }
