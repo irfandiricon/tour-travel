@@ -62,15 +62,23 @@ $bookingLabels = [
         'months' => ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'],
     ],
 ];
-// Navbar logo: trimmed 468x96 copy of uploads/brand/Kimigo Travel Logo with Bridge and Airplane.png
-// (WebP with a PNG fallback). Without the file the icon + brand name are shown instead.
+// Navbar logo. Source: uploads/brand/kimigo-travel.png. kimigo-travel-navbar.png/.webp are small trimmed
+// copies of it; they are only used while they are newer than the source, so replacing the source shows
+// the new logo at once (full size) until the copies are made again. Size and ?v= come from the file
+// actually served, so browsers never keep an old cached logo. Without a source the icon + name are shown.
 $brandLogo = null;
-if (is_file(FCPATH . 'uploads/brand/kimigo-travel-logo.png')) {
+$brandDir  = FCPATH . 'uploads/brand/';
+if (is_file($brandDir . 'kimigo-travel.png')) {
+    $srcTime  = (int) filemtime($brandDir . 'kimigo-travel.png');
+    $useSmall = is_file($brandDir . 'kimigo-travel-navbar.png') && (int) filemtime($brandDir . 'kimigo-travel-navbar.png') >= $srcTime;
+    $pngName  = $useSmall ? 'kimigo-travel-navbar.png' : 'kimigo-travel.png';
+    $size     = @getimagesize($brandDir . $pngName) ?: [0, 0];
+    $webpOk   = $useSmall && is_file($brandDir . 'kimigo-travel-navbar.webp') && (int) filemtime($brandDir . 'kimigo-travel-navbar.webp') >= $srcTime;
     $brandLogo = [
-        'png'    => 'uploads/brand/kimigo-travel-logo.png',
-        'webp'   => is_file(FCPATH . 'uploads/brand/kimigo-travel-logo.webp') ? 'uploads/brand/kimigo-travel-logo.webp' : null,
-        'width'  => 468,
-        'height' => 96,
+        'png'    => 'uploads/brand/' . $pngName . '?v=' . (int) filemtime($brandDir . $pngName),
+        'webp'   => $webpOk ? 'uploads/brand/kimigo-travel-navbar.webp?v=' . (int) filemtime($brandDir . 'kimigo-travel-navbar.webp') : null,
+        'width'  => (int) $size[0],
+        'height' => (int) $size[1],
     ];
 }
 // Every menu item scrolls to its section on the landing page. Sub pages (fleet, gallery, news and

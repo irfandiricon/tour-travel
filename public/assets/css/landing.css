@@ -64,9 +64,9 @@ a { color: var(--lp-link); }
   background: var(--lp-lime); color: var(--lp-lime-ink); font-size: 1.1rem;
 }
 .brand-text { font-size: 1rem; line-height: 1.2; }
-/* Logo image: fixed height, width from its 468x96 ratio (about 195px at 40px). */
-.brand-logo { display: block; width: auto; height: 40px; max-width: 60vw; object-fit: contain; }
-@media (max-width: 575.98px) { .brand-logo { height: 34px; } }
+/* Logo image: fixed height, width follows the file's own ratio (about 2:1, so ~104px at 52px). */
+.brand-logo { display: block; width: auto; height: 52px; max-width: 60vw; object-fit: contain; }
+@media (max-width: 575.98px) { .brand-logo { height: 44px; } }
 .navbar-toggler {
   min-width: 44px; min-height: 44px; border: 1px solid var(--c-border); border-radius: var(--r-pill);
 }

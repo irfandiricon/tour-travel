@@ -450,16 +450,24 @@ final class ListingPagesTest extends CIUnitTestCase
 
     public function testNavbarBrandIsTheLogoImage(): void
     {
+        [$w, $h] = getimagesize(FCPATH . 'uploads/brand/kimigo-travel-navbar.png');
         foreach ([$this->landing($this->proxies(1, 1, 1)), $this->page('news', $this->proxies(1, 1, 1))] as $html) {
             $html = $this->d($html);
-            $this->assertMatchesRegularExpression('#<source srcset="https?://[^"]*/uploads/brand/kimigo-travel-logo\.webp" type="image/webp">#', $html);
-            $this->assertMatchesRegularExpression('#<img class="brand-logo" src="https?://[^"]*/uploads/brand/kimigo-travel-logo\.png" alt="Kimigo Travel"\s+width="468" height="96">#', $html);
+            $this->assertMatchesRegularExpression('#<source srcset="https?://[^"]*/uploads/brand/kimigo-travel-navbar\.webp\?v=\d+" type="image/webp">#', $html);
+            $this->assertMatchesRegularExpression('#<img class="brand-logo" src="https?://[^"]*/uploads/brand/kimigo-travel-navbar\.png\?v=\d+" alt="Kimigo Travel"\s+width="' . $w . '" height="' . $h . '">#', $html);
+            $this->assertStringNotContainsString('kimigo-travel-logo.webp', $html, 'the old logo is no longer served');
             $this->assertStringNotContainsString('class="brand-text"', $html, 'the image replaces the text brand');
         }
-        $this->assertFileExists(FCPATH . 'uploads/brand/kimigo-travel-logo.png');
-        $this->assertSame([468, 96], array_slice(getimagesize(FCPATH . 'uploads/brand/kimigo-travel-logo.png'), 0, 2));
+        $this->assertFileExists(FCPATH . 'uploads/brand/kimigo-travel.png');
+        $this->assertGreaterThanOrEqual(filemtime(FCPATH . 'uploads/brand/kimigo-travel.png'), filemtime(FCPATH . 'uploads/brand/kimigo-travel-navbar.png'), 'navbar copy made from the current logo');
     }
 
+    public function testANewerSourceLogoIsShownUntilTheNavbarCopyIsRemade(): void
+    {
+        $src = (string) file_get_contents(APPPATH . 'Views/layouts/public.php');
+        $this->assertStringContainsString("filemtime(\$brandDir . 'kimigo-travel-navbar.png') >= \$srcTime;", $src);
+        $this->assertStringContainsString("\$pngName  = \$useSmall ? 'kimigo-travel-navbar.png' : 'kimigo-travel.png';", $src);
+    }
     public function testEveryLandingSectionHasItsOwnBackground(): void
     {
         $html = $this->landing($this->proxies(1, 1, 1));
