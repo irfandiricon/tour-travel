@@ -171,12 +171,6 @@ $heroHeading = $heroTitle !== '' ? $heroTitle : $t['readyHero'];
                 <?php if ($contactWa !== null): ?>
                     <a class="btn btn-wa btn-success btn-lg" href="<?= esc($contactWa, 'attr') ?>" target="_blank" rel="noopener"><i class="bi bi-whatsapp" aria-hidden="true"></i> <?= esc($t['chat']) ?></a>
                 <?php endif; ?>
-                <!-- <a class="btn-lime" href="#fleet"><?= esc($t['viewFleet']) ?></a>
-                <?php if ($slideCount > 1): ?>
-                    <button type="button" class="btn-lime" data-hero-toggle aria-pressed="false"
-                            data-label-pause="<?= esc($t['pause'], 'attr') ?>" data-label-play="<?= esc($t['play'], 'attr') ?>"
-                            aria-label="<?= esc($t['pause'], 'attr') ?>"><i class="bi bi-pause-fill" aria-hidden="true"></i></button>
-                <?php endif; ?> -->
             </div>
         </div>
 
