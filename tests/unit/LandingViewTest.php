@@ -304,4 +304,21 @@ final class LandingViewTest extends CIUnitTestCase
         $this->assertMatchesRegularExpression('/\.section-head h2::after \{[^}]*linear-gradient\(90deg, var\(--lp-blue\), var\(--lp-orange\)\)/s', $css);
         $this->assertMatchesRegularExpression('/@media \(prefers-reduced-motion: reduce\) \{\s*\.js-reveal \.reveal, \.js-reveal \.section-head\.reveal \.section-sub \{ opacity: 1; transform: none; transition: none; \}/', $css);
     }
+
+    public function testSectionContentAlsoRevealsOnScrollAndCleansUp(): void
+    {
+        $js  = (string) file_get_contents(FCPATH . 'assets/js/landing.js');
+        $css = (string) file_get_contents(FCPATH . 'assets/css/landing.css');
+
+        $this->assertStringContainsString("document.querySelectorAll('.fleet-rail, .gallery-grid, .news-rail, #faq-accordion, .contact-box, .about-content')", $js);
+        $this->assertStringContainsString("if (child.classList.contains('reveal')) {", $js, 'headings keep their own animation');
+        $this->assertStringContainsString("item.classList.remove('reveal-item', 'is-revealed');", $js, 'classes removed afterwards so hover effects work');
+        $this->assertStringContainsString("{ rootMargin: '0px 0px -10% 0px', threshold: 0 }", $js, 'also fires for blocks taller than the screen');
+
+        $this->assertStringContainsString('.js-reveal .reveal-item { opacity: 0; transform: translate3d(0, 24px, 0); }', $css);
+        $this->assertStringContainsString('animation-delay: calc(var(--reveal-i, 0) * 90ms + .15s);', $css);
+        $this->assertDoesNotMatchRegularExpression('/(^|\n)\.reveal-item \{/', $css, 'never hidden without html.js-reveal');
+        $this->assertMatchesRegularExpression('/@media \(prefers-reduced-motion: reduce\) \{\s*\.js-reveal \.reveal-item, \.js-reveal \.reveal-item\.is-revealed \{ opacity: 1; transform: none; animation: none; \}/', $css);
+        $this->assertStringContainsString('@media print {', $css);
+    }
 }

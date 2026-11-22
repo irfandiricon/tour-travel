@@ -544,3 +544,82 @@
 
   Array.prototype.forEach.call(targets, function (el) { io.observe(el); });
 })();
+
+// Section content (cards, gallery photos, FAQ items, About text, contact details, "View more")
+// fades and slides up when it scrolls into view, a moment after its heading. Children of a group
+// appear one after another. Once played, the classes are removed so hover effects (e.g. the news
+// card lift) work as before. Same switch as the headings: only with html.js-reveal.
+(function initBodyReveal() {
+  'use strict';
+
+  var root = document.documentElement;
+  if (!root.classList.contains('js-reveal') || !('IntersectionObserver' in window)) {
+    return;
+  }
+
+  var STEP = 90;       // ms between items of a group (matches the CSS)
+  var DURATION = 700;  // ms, the CSS animation length
+  var MAX_INDEX = 8;   // later items share the last delay, so long lists do not drag
+
+  // Groups: their children are revealed in turn. Children that are headings (.reveal) are skipped.
+  var groups = document.querySelectorAll('.fleet-rail, .gallery-grid, .news-rail, #faq-accordion, .contact-box, .about-content');
+  // Single blocks revealed as a whole.
+  var singles = document.querySelectorAll('.about-media, .section-more, .testi-controls, .section .container > .empty-state, .section-card > .empty-state, .contact-card > .empty-state');
+
+  var watched = [];
+  Array.prototype.forEach.call(groups, function (group) {
+    var items = [];
+    Array.prototype.forEach.call(group.children, function (child, i) {
+      if (child.classList.contains('reveal')) {
+        return;
+      }
+      child.classList.add('reveal-item');
+      child.style.setProperty('--reveal-i', String(Math.min(i, MAX_INDEX)));
+      items.push(child);
+    });
+    if (items.length) {
+      watched.push({ el: group, items: items });
+    }
+  });
+  Array.prototype.forEach.call(singles, function (el) {
+    if (el.classList.contains('reveal-item')) {
+      return; // already part of a group
+    }
+    el.classList.add('reveal-item');
+    el.style.setProperty('--reveal-i', '1'); // just after the heading
+    watched.push({ el: el, items: [el] });
+  });
+  if (!watched.length) {
+    return;
+  }
+
+  function play(entry) {
+    var longest = 0;
+    entry.items.forEach(function (item) {
+      item.classList.add('is-revealed');
+      longest = Math.max(longest, parseInt(item.style.getPropertyValue('--reveal-i'), 10) || 0);
+    });
+    window.setTimeout(function () {
+      entry.items.forEach(function (item) {
+        item.classList.remove('reveal-item', 'is-revealed');
+        item.style.removeProperty('--reveal-i');
+      });
+    }, DURATION + longest * STEP + 150);
+  }
+
+  var byElement = new Map();
+  watched.forEach(function (w) { byElement.set(w.el, w); });
+
+  // threshold 0 + a bottom margin: also works for blocks taller than the screen.
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) {
+        return;
+      }
+      io.unobserve(entry.target); // animate once
+      play(byElement.get(entry.target));
+    });
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0 });
+
+  watched.forEach(function (w) { io.observe(w.el); });
+})();
