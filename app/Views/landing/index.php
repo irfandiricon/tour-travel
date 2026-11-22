@@ -171,16 +171,13 @@ $heroHeading = $heroTitle !== '' ? $heroTitle : $t['readyHero'];
                 <?php if ($contactWa !== null): ?>
                     <a class="btn btn-wa btn-success btn-lg" href="<?= esc($contactWa, 'attr') ?>" target="_blank" rel="noopener"><i class="bi bi-whatsapp" aria-hidden="true"></i> <?= esc($t['chat']) ?></a>
                 <?php endif; ?>
-                <a class="btn-lime" href="#fleet"><?= esc($t['viewFleet']) ?></a>
+                <!-- <a class="btn-lime" href="#fleet"><?= esc($t['viewFleet']) ?></a>
                 <?php if ($slideCount > 1): ?>
                     <button type="button" class="btn-lime" data-hero-toggle aria-pressed="false"
                             data-label-pause="<?= esc($t['pause'], 'attr') ?>" data-label-play="<?= esc($t['play'], 'attr') ?>"
                             aria-label="<?= esc($t['pause'], 'attr') ?>"><i class="bi bi-pause-fill" aria-hidden="true"></i></button>
-                <?php endif; ?>
+                <?php endif; ?> -->
             </div>
-            <?php if ($fleetCount > 0): ?>
-                <p class="trust-pill"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> <?= esc(str_replace('{n}', (string) $fleetCount, $t['trust'])) ?></p>
-            <?php endif; ?>
         </div>
 
         <div class="hero-media">
@@ -224,7 +221,7 @@ $heroHeading = $heroTitle !== '' ? $heroTitle : $t['readyHero'];
             </div>
         </div>
 
-        <?php if ($stats !== []): ?>
+        <!-- <?php if ($stats !== []): ?>
             <div class="stats-row">
                 <?php foreach ($stats as $s): ?>
                     <div class="stat-card<?= $s['dark'] ? ' stat-card--dark' : '' ?>">
@@ -233,7 +230,7 @@ $heroHeading = $heroTitle !== '' ? $heroTitle : $t['readyHero'];
                     </div>
                 <?php endforeach; ?>
             </div>
-        <?php endif; ?>
+        <?php endif; ?> -->
     </div>
 </section>
 

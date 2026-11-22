@@ -515,3 +515,32 @@
     modal.hide();
   });
 })();
+
+// Section headings fade and slide up the first time they scroll into view; the accent line under
+// the title then grows from the centre. Only active when the <head> script set html.js-reveal.
+(function initSectionReveal() {
+  'use strict';
+
+  var root = document.documentElement;
+  if (!root.classList.contains('js-reveal') || !('IntersectionObserver' in window)) {
+    return;
+  }
+  window.kimigoRevealReady = true;
+
+  var targets = document.querySelectorAll('.section .section-head, .about-section .about-eyebrow, .about-section .about-title, .contact-card > h2');
+  if (!targets.length) {
+    return;
+  }
+  Array.prototype.forEach.call(targets, function (el) { el.classList.add('reveal'); });
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target); // animate once
+      }
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+
+  Array.prototype.forEach.call(targets, function (el) { io.observe(el); });
+})();

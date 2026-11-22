@@ -108,6 +108,16 @@ $floatingWa    = is_string($floatingWa) && trim($floatingWa) !== '' ? $floatingW
     <link rel="stylesheet" href="<?= esc(base_url('assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css'), 'attr') ?>">
     <link rel="stylesheet" href="<?= esc(base_url('assets/css/tokens.css'), 'attr') ?>">
     <link rel="stylesheet" href="<?= esc(base_url('assets/css/landing.css'), 'attr') ?>">
+    <script>
+    // Scroll reveal for section headings (landing.js initSectionReveal). Headings are only hidden when the
+    // browser can animate them and the visitor has not asked for reduced motion. If the script has not
+    // started within 3 s (blocked or failed), the class is removed so nothing stays hidden.
+    (function (d, w) {
+        if (!('IntersectionObserver' in w) || (w.matchMedia && w.matchMedia('(prefers-reduced-motion: reduce)').matches)) { return; }
+        d.documentElement.classList.add('js-reveal');
+        w.setTimeout(function () { if (!w.kimigoRevealReady) { d.documentElement.classList.remove('js-reveal'); } }, 3000);
+    })(document, window);
+    </script>
     <?= $this->renderSection('head') ?>
 </head>
 <body class="public-body">

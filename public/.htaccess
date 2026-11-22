@@ -16,15 +16,24 @@ Options -Indexes
 	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
 	# RewriteBase /
 
-	# Redirect Trailing Slashes...
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteCond %{REQUEST_URI} (.+)/$
-	RewriteRule ^ %1 [L,R=301]
+# Canonical address on production: https://kimigotravel.com (no www). One 301 for http:// and/or www.
+# The path is taken from THE_REQUEST (what the browser asked for): the root .htaccess rewrites every
+# request into public/, so REQUEST_URI would wrongly contain "/public/". The query string is kept.
+# Only this domain is touched, so localhost and other hosts behave as before.
+RewriteCond %{HTTP_HOST} ^(?:www\.)?kimigotravel\.com$ [NC]
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
+RewriteCond %{THE_REQUEST} ^\S+\s([^?\s]*)
+RewriteRule ^ https://kimigotravel.com%1 [R=301,L,NE]
 
-	# Rewrite "www.example.com -> example.com"
-	RewriteCond %{HTTPS} !=on
-	RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-	RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
+RewriteCond %{HTTP_HOST} ^www\.kimigotravel\.com$ [NC]
+RewriteCond %{THE_REQUEST} ^\S+\s([^?\s]*)
+RewriteRule ^ https://kimigotravel.com%1 [R=301,L,NE]
+
+# Redirect trailing slashes (/fleet/ -> /fleet), also based on THE_REQUEST for the same reason.
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{THE_REQUEST} ^\S+\s([^?\s]+)/(?:\?\S*)?\s
+RewriteRule ^ %1 [L,R=301,NE]
 
 	# Checks to see if the user is attempting to access a valid file,
 	# such as an image or css document, if this isn't true it sends the

@@ -664,3 +664,27 @@ a.news-card__link:hover .news-card__more i { transform: translateX(4px); }
 .booking-price__note { color: var(--c-surface-2); opacity: .85; }
 .booking-submit { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 3.25rem; font-size: 1.1rem; font-weight: 700; }
 .booking-hint { width: 100%; margin: 0; text-align: center; font-size: var(--fs-small); color: var(--c-muted); }
+
+/* ---------- Animasi judul section saat di-scroll ---------- */
+/* Accent line under every section title (always shown; it grows in when the reveal runs). */
+.section-head h2::after {
+  content: ""; display: block; width: 3.5rem; height: 4px; margin: .85rem auto 0;
+  border-radius: var(--r-pill); background: linear-gradient(90deg, var(--lp-blue), var(--lp-orange));
+  transform-origin: center;
+}
+/* Hidden state only exists while html.js-reveal is set (see the <head> script). */
+.js-reveal .reveal {
+  opacity: 0; transform: translate3d(0, 28px, 0);
+  transition: opacity .7s ease, transform .8s cubic-bezier(.2, .7, .2, 1);
+  will-change: opacity, transform;
+}
+.js-reveal .reveal.is-visible { opacity: 1; transform: none; }
+.js-reveal .section-head.reveal h2::after { transform: scaleX(0); transition: transform .6s cubic-bezier(.2, .7, .2, 1) .35s; }
+.js-reveal .section-head.reveal.is-visible h2::after { transform: scaleX(1); }
+.js-reveal .section-head.reveal .section-sub { opacity: 0; transform: translate3d(0, 12px, 0); transition: opacity .6s ease .2s, transform .6s ease .2s; }
+.js-reveal .section-head.reveal.is-visible .section-sub { opacity: 1; transform: none; }
+.js-reveal .about-title.reveal { transition-delay: .12s; }
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .reveal, .js-reveal .section-head.reveal .section-sub { opacity: 1; transform: none; transition: none; }
+  .js-reveal .section-head.reveal h2::after { transform: none; transition: none; }
+}

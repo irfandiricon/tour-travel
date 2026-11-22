@@ -283,4 +283,25 @@ final class LandingViewTest extends CIUnitTestCase
             $this->assertStringContainsString($token, $tokens);
         }
     }
+
+    public function testSectionHeadingsRevealOnScrollWithSafeFallbacks(): void
+    {
+        $layout = (string) file_get_contents(APPPATH . 'Views/layouts/public.php');
+        $js     = (string) file_get_contents(FCPATH . 'assets/js/landing.js');
+        $css    = (string) file_get_contents(FCPATH . 'assets/css/landing.css');
+
+        // Hidden state only when the browser can animate and the visitor allows motion; undone after 3 s.
+        $this->assertStringContainsString("if (!('IntersectionObserver' in w) || (w.matchMedia && w.matchMedia('(prefers-reduced-motion: reduce)').matches)) { return; }", $layout);
+        $this->assertStringContainsString("if (!w.kimigoRevealReady) { d.documentElement.classList.remove('js-reveal'); } }, 3000);", $layout);
+        $this->assertLessThan(strpos($layout, "renderSection('content')"), strpos($layout, "classList.add('js-reveal')"), 'set in <head>, before content paints');
+
+        $this->assertStringContainsString("document.querySelectorAll('.section .section-head, .about-section .about-eyebrow, .about-section .about-title, .contact-card > h2')", $js);
+        $this->assertStringContainsString('io.unobserve(entry.target); // animate once', $js);
+
+        $this->assertStringContainsString('.js-reveal .reveal {', $css);
+        $this->assertStringContainsString('.js-reveal .reveal.is-visible { opacity: 1; transform: none; }', $css);
+        $this->assertDoesNotMatchRegularExpression('/(^|\n)\.reveal \{[^}]*opacity: 0/', $css, 'never hidden without html.js-reveal');
+        $this->assertMatchesRegularExpression('/\.section-head h2::after \{[^}]*linear-gradient\(90deg, var\(--lp-blue\), var\(--lp-orange\)\)/s', $css);
+        $this->assertMatchesRegularExpression('/@media \(prefers-reduced-motion: reduce\) \{\s*\.js-reveal \.reveal, \.js-reveal \.section-head\.reveal \.section-sub \{ opacity: 1; transform: none; transition: none; \}/', $css);
+    }
 }
