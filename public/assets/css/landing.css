@@ -150,10 +150,11 @@ a { color: var(--lp-link); }
   color: var(--lp-orange-deep);
 }
 .hero-section .hero-title .hl::after {
-  content: ""; position: absolute; z-index: -1;
+  display: none;
+  /* content: ""; position: absolute; z-index: -1;
   left: -.04em; right: -.04em; bottom: .06em; height: .26em;
   background: var(--lp-lime); border-radius: var(--r-pill);
-  transform: rotate(-1.5deg); transform-origin: left center;
+  transform: rotate(-1.5deg); transform-origin: left center; */
 }
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
   .hero-section .hero-title {
@@ -163,7 +164,7 @@ a { color: var(--lp-link); }
   }
   /* Solid fill on purpose: a clipped gradient here would be painted as the element's background,
      i.e. below the lime marker (::after), which would then cover the letters. */
-  .hero-section .hero-title .hl { -webkit-text-fill-color: var(--lp-orange-deep); }
+  .hero-section .hero-title .hl { -webkit-text-fill-color: #020254; }
 }
 .hero-section .hero-subtitle { font-size: clamp(1.05rem, 1rem + .35vw, 1.25rem); font-weight: 500; line-height: 1.6; color: var(--lp-hero-sub); }
 /* Windows high contrast: drop the gradient so the system text colour is used. */

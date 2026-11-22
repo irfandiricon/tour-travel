@@ -190,6 +190,21 @@ body.admin-body {
   border-radius: var(--r-pill); font-weight: 600; font-size: .8rem; white-space: nowrap;
 }
 .list-card.table-responsive { border-radius: var(--r-lg); border: 1px solid var(--c-border); box-shadow: var(--sh-sm); }
+/* Admin tables scroll sideways when they are wider than the screen. `.list-card { overflow: hidden }`
+   above used to override Bootstrap's .table-responsive (same specificity, loaded later), so wide
+   tables were cut off instead of scrolling. */
+.list-card.table-responsive {
+  overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+  scrollbar-width: thin; scrollbar-color: var(--c-border) transparent;
+}
+.list-card.table-responsive::-webkit-scrollbar { height: 8px; }
+.list-card.table-responsive::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: var(--r-pill); }
+.list-card.table-responsive:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+/* A minimum width so the columns stay readable; below it the table scrolls instead of squeezing. */
+.list-card .admin-table { min-width: 720px; }
+.list-card .admin-table th { white-space: nowrap; }
+.list-card .admin-table td { max-width: 28rem; overflow-wrap: break-word; }
+.list-card .admin-table td:first-child, .list-card .admin-table td:last-child { white-space: nowrap; }
 
 /* ------------------------------------------------ Buttons (Bootstrap) */
 .admin-main .btn { min-height: var(--admin-touch); border-radius: var(--r-pill); font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; }

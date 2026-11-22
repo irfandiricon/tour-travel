@@ -140,4 +140,17 @@ final class AdminDataTableTest extends CIUnitTestCase
         $this->assertStringContainsString("'No matching entries found for \"' + search + '\".'", $js);
         $this->assertStringContainsString("if (e.key === 'Escape' && searchInput.value !== '')", $js);
     }
+
+    public function testTablesScrollSidewaysOnNarrowScreens(): void
+    {
+        $css = (string) file_get_contents(FCPATH . 'assets/css/admin.css');
+
+        $this->assertMatchesRegularExpression('/\.list-card\.table-responsive \{\s*overflow-x: auto; overflow-y: hidden;/', $css, 'beats .list-card { overflow: hidden }');
+        $this->assertLessThan(strpos($css, 'overflow-x: auto; overflow-y: hidden;'), strpos($css, '.list-card { overflow: hidden; }'), 'the override comes after the rule it fixes');
+        $this->assertStringContainsString('.list-card .admin-table { min-width: 720px; }', $css);
+        $this->assertStringContainsString('.list-card .admin-table th { white-space: nowrap; }', $css);
+
+        $html = $this->render('admin/faq/index');
+        $this->assertMatchesRegularExpression('#<div class="list-card table-responsive bg-white border rounded" tabindex="0" role="region" aria-label="[^"]*scroll horizontally[^"]*">#', $html, 'keyboard users can scroll it too');
+    }
 }

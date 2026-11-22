@@ -34,7 +34,7 @@ $flash   = session()->getFlashdata('error');
                maxlength="100" autocomplete="off" spellcheck="false" aria-controls="list-table" aria-describedby="list-status">
     </div>
 </div>
-<div class="list-card table-responsive bg-white border rounded">
+<div class="list-card table-responsive bg-white border rounded" tabindex="0" role="region" aria-label="<?= esc($title, 'attr') ?> (scroll horizontally to see all columns)">
     <table id="list-table" class="admin-table table table-hover align-middle mb-0" data-admin-list data-entity="<?= esc($entity) ?>" data-page="<?= esc($page) ?>"
            aria-describedby="list-status">
         <caption class="sr-only"><?= esc($title) ?></caption>
