@@ -35,11 +35,11 @@ $sections = [
         <div class="tab-pane fade show active" id="config-pane-content" role="tabpanel" aria-labelledby="config-tab-content" tabindex="0">
             <div class="row g-3">
                 <h2 class="h5 col-12 mb-0">Hero</h2>
-                <?= view('admin/partials/lang_field', ['base' => 'hero_title', 'label' => 'Hero title', 'type' => 'text', 'allRequired' => true, 'maxlength' => 255, 'item' => $config]) ?>
-                <?= view('admin/partials/lang_field', ['base' => 'hero_subtitle', 'label' => 'Hero subtitle', 'type' => 'text', 'allRequired' => true, 'maxlength' => 500, 'item' => $config]) ?>
+                <?= view('admin/partials/lang_field', ['base' => 'hero_title', 'label' => 'Hero title', 'type' => 'text', 'allRequired' => true, 'item' => $config]) ?>
+                <?= view('admin/partials/lang_field', ['base' => 'hero_subtitle', 'label' => 'Hero subtitle', 'type' => 'text', 'allRequired' => true, 'item' => $config]) ?>
 
                 <h2 class="h5 col-12 mb-0">About</h2>
-                <?= view('admin/partials/lang_field', ['base' => 'about_title', 'label' => 'About heading (optional)', 'type' => 'text', 'required' => false, 'maxlength' => 150, 'item' => $config]) ?>
+                <?= view('admin/partials/lang_field', ['base' => 'about_title', 'label' => 'About heading (optional)', 'type' => 'text', 'required' => false, 'item' => $config]) ?>
                 <?= view('admin/partials/lang_field', ['base' => 'about_body', 'label' => 'About', 'type' => 'textarea', 'allRequired' => true, 'item' => $config]) ?>
 
                 <div class="form-row col-12">
